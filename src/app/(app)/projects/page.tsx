@@ -2,21 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Briefcase, ArrowRight } from "lucide-react"
 
 const statusStyles: Record<string, string> = {
-  ACTIVE: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  ON_HOLD: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+  ACTIVE: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  ON_HOLD: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   COMPLETED: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
   CANCELLED: "bg-muted text-muted-foreground",
-}
-
-const statusLabels: Record<string, string> = {
-  ACTIVE: "Active",
-  ON_HOLD: "On Hold",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
 }
 
 export default async function ProjectsPage() {
@@ -27,68 +19,81 @@ export default async function ProjectsPage() {
     where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },
     include: {
-      client: { select: { name: true, company: true } },
+      client: { select: { name: true } },
       _count: { select: { proposals: true, invoices: true, timeEntries: true } },
     },
   })
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage your client projects
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Projects</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Organize your work. Link everything to a project.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/projects/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Project
-          </Link>
-        </Button>
+        <Link
+          href="/projects/new"
+          className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90"
+        >
+          <Plus className="h-4 w-4" />
+          New project
+        </Link>
       </div>
 
       {projects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12">
-          <p className="text-sm text-muted-foreground">No projects yet</p>
-          <Button asChild className="mt-4">
-            <Link href="/projects/new">Create your first project</Link>
-          </Button>
+        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card/50 px-6 py-20 text-center">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+            <Briefcase className="h-7 w-7 text-primary" />
+          </div>
+          <h2 className="font-heading text-xl font-semibold">No projects yet</h2>
+          <p className="mt-2 max-w-md text-sm text-muted-foreground">
+            Projects bring everything together. Link clients, proposals, invoices, and time
+            entries to a single project so you always have the full picture.
+          </p>
+          <Link
+            href="/projects/new"
+            className="mt-8 inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90"
+          >
+            Create your first project
+          </Link>
         </div>
       ) : (
-        <div className="rounded-lg border">
-          {projects.map((project) => (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {projects.map((p) => (
             <Link
-              key={project.id}
-              href={`/projects/${project.id}`}
-              className="flex items-center justify-between border-b px-4 py-3 transition-colors hover:bg-muted/50 last:border-b-0"
+              key={p.id}
+              href={`/projects/${p.id}`}
+              className="group rounded-xl border border-border bg-card p-5 transition-all hover:shadow-md"
             >
-              <div className="flex-1">
-                <p className="text-sm font-medium">{project.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {project.client.name}
-                  {project.client.company ? ` — ${project.client.company}` : ""}
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="hidden text-xs text-muted-foreground sm:flex gap-3">
-                  <span>{project._count.proposals} proposals</span>
-                  <span>{project._count.invoices} invoices</span>
-                  <span>{project._count.timeEntries}h tracked</span>
+              <div className="flex items-start justify-between">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <Briefcase className="h-5 w-5 text-primary" />
                 </div>
-                {project.budget && (
-                  <span className="text-sm font-medium">
-                    ${project.budget.toFixed(0)}
-                  </span>
-                )}
                 <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                    statusStyles[project.status]
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    statusStyles[p.status] || "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {statusLabels[project.status]}
+                  {p.status === "ON_HOLD"
+                    ? "On Hold"
+                    : p.status.charAt(0) + p.status.slice(1).toLowerCase()}
                 </span>
+              </div>
+              <h3 className="mt-4 font-heading text-base font-semibold group-hover:text-primary">
+                {p.name}
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground">{p.client.name}</p>
+              {p.budget && (
+                <p className="mt-2 text-sm font-medium">
+                  ${p.budget.toLocaleString()}
+                </p>
+              )}
+              <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
+                <span>{p._count.proposals} proposals</span>
+                <span>{p._count.invoices} invoices</span>
+                <span>{p._count.timeEntries} entries</span>
               </div>
             </Link>
           ))}

@@ -14,14 +14,16 @@ export default async function NewProposalPage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-3xl space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">New Proposal</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">New Proposal</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Create a proposal for your client
         </p>
       </div>
-      <ProposalForm clients={clients} />
+      <div className="rounded-xl border border-border bg-card p-6">
+        <ProposalForm clients={clients} />
+      </div>
     </div>
   )
 }

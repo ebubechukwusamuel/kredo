@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { Timer } from "@/components/forms/timer"
 import { TimeEntryList } from "@/components/forms/time-entry-list"
+import { Clock } from "lucide-react"
+import Link from "next/link"
 
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600)
@@ -45,11 +47,11 @@ export default async function TimePage() {
   const sortedDays = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Time Tracking</h1>
-        <p className="text-sm text-muted-foreground">
-          Track time with the timer or add manual entries
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Time Tracking</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Track billable hours with the timer or log time manually.
         </p>
       </div>
 

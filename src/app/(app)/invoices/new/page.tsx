@@ -14,14 +14,16 @@ export default async function NewInvoicePage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-3xl space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">New Invoice</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">New Invoice</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Create an invoice with line items
         </p>
       </div>
-      <InvoiceForm clients={clients} />
+      <div className="rounded-xl border border-border bg-card p-6">
+        <InvoiceForm clients={clients} />
+      </div>
     </div>
   )
 }

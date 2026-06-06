@@ -88,6 +88,75 @@ export async function updateInvoiceStatus(
   revalidatePath(`/invoices/${id}`)
 }
 
+export async function createInvoiceFromRequest({
+  requestId,
+  clientName,
+  clientEmail,
+  projectName,
+  description,
+  budget,
+}: {
+  requestId: string
+  clientName: string
+  clientEmail: string
+  projectName: string
+  description: string
+  budget: number
+}) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Not authenticated")
+
+  const user = await prisma.user.findUnique({ where: { id: session.user.id } })
+  if (!user) throw new Error("User not found")
+
+  let client = await prisma.client.findFirst({
+    where: { email: clientEmail, userId: session.user.id },
+  })
+
+  if (!client) {
+    client = await prisma.client.create({
+      data: {
+        userId: session.user.id,
+        name: clientName,
+        email: clientEmail,
+      },
+    })
+  }
+
+  const total = budget
+  const depositAmount = total * 0.5
+  const number = generateInvoiceNumber()
+
+  const invoice = await prisma.invoice.create({
+    data: {
+      userId: session.user.id,
+      clientId: client.id,
+      number,
+      amount: total,
+      tax: 0,
+      total,
+      depositAmount,
+      status: "SENT",
+      items: {
+        create: {
+          description: projectName + (description ? ` — ${description.slice(0, 100)}` : ""),
+          quantity: 1,
+          rate: total,
+          amount: total,
+        },
+      },
+    },
+  })
+
+  await prisma.projectRequest.update({
+    where: { id: requestId },
+    data: { invoiceId: invoice.id, status: "INVOICE_SENT" },
+  })
+
+  revalidatePath(`/requests/${requestId}`)
+  return { id: invoice.id }
+}
+
 export async function deleteInvoice(id: string) {
   const session = await auth()
   if (!session?.user) throw new Error("Not authenticated")

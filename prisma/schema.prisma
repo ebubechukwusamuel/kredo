@@ -34,31 +34,39 @@ enum ProjectStatus {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  phone         String?
-  bio           String?
-  company       String?
-  title         String?
-  address       String?
-  taxId         String?
-  currency      String    @default("USD")
-  rate          Float?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  name            String?
+  email           String    @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?
+  phone           String?
+  bio             String?
+  company         String?
+  title           String?
+  address         String?
+  taxId           String?
+  currency        String    @default("USD")
+  rate            Float?
+  brandName       String?
+  brandColor      String    @default("#e85d3a")
+  logoUrl         String?
+  bankName        String?
+  bankAccountName String?
+  bankAccountNumber String?
+  slug            String?   @unique
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  accounts    Account[]
-  sessions    Session[]
-  clients     Client[]
-  projects    Project[]
-  proposals   Proposal[]
-  invoices    Invoice[]
-  timeEntries TimeEntry[]
-  expenses    Expense[]
+  accounts        Account[]
+  sessions        Session[]
+  clients         Client[]
+  projects        Project[]
+  proposals       Proposal[]
+  invoices        Invoice[]
+  timeEntries     TimeEntry[]
+  expenses        Expense[]
+  projectRequests ProjectRequest[]
 }
 
 model Account {
@@ -196,8 +204,16 @@ model Invoice {
   user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   client   Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
   project  Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  depositAmount Float?
+  depositPaid   Boolean   @default(false)
+  depositPaidAt DateTime?
+  deliveryLink  String?
+  deliveredAt   DateTime?
+
   items    InvoiceItem[]
   payments Payment[]
+
+  projectRequests ProjectRequest[]
 
   @@index([userId])
   @@index([clientId])
@@ -273,5 +289,28 @@ model Payment {
 
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
+  @@index([invoiceId])
+}
+
+model ProjectRequest {
+  id           String   @id @default(cuid())
+  userId       String
+  invoiceId    String?
+  clientName   String
+  clientEmail  String
+  projectName  String
+  description  String?
+  budget       Float?
+  status       String   @default("PENDING")
+  depositPaid  Boolean  @default(false)
+  deliveryLink String?
+  deliveredAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
   @@index([invoiceId])
 }

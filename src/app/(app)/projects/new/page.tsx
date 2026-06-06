@@ -14,14 +14,16 @@ export default async function NewProjectPage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-3xl space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">New Project</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">New Project</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Create a new project for a client
         </p>
       </div>
-      <ProjectForm clients={clients} />
+      <div className="rounded-xl border border-border bg-card p-6">
+        <ProjectForm clients={clients} />
+      </div>
     </div>
   )
 }

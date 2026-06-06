@@ -25,7 +25,7 @@ export default async function AppLayout({
           <div className="no-print">
             <Header />
           </div>
-          <main className="flex-1 overflow-auto p-6">{children}</main>
+          <main className="flex-1 overflow-auto p-8">{children}</main>
         </div>
       </div>
     </Providers>

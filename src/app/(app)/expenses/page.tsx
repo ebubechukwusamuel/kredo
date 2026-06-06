@@ -2,18 +2,16 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
-import { Button } from "@/components/ui/button"
-import { DeleteExpenseButton } from "@/components/forms/expense-actions"
-import { Plus } from "lucide-react"
+import { Plus, Wallet, ArrowRight } from "lucide-react"
 
 const categoryColors: Record<string, string> = {
   SOFTWARE: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  OFFICE: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400",
-  TRAVEL: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+  EQUIPMENT: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400",
+  TRAVEL: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   FOOD: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-  EQUIPMENT: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-  SERVICES: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  EDUCATION: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400",
+  OFFICE: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  SERVICES: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
+  EDUCATION: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
   OTHER: "bg-muted text-muted-foreground",
 }
 
@@ -21,97 +19,91 @@ export default async function ExpensesPage() {
   const session = await auth()
   if (!session?.user) redirect("/login")
 
-  const expenses = await prisma.expense.findMany({
-    where: { userId: session.user.id },
-    orderBy: { date: "desc" },
-  })
-
-  const total = expenses.reduce((sum, e) => sum + e.amount, 0)
-  const taxDeductible = expenses
-    .filter((e) => e.taxDeductible)
-    .reduce((sum, e) => sum + e.amount, 0)
+  const [expenses, totals] = await Promise.all([
+    prisma.expense.findMany({
+      where: { userId: session.user.id },
+      orderBy: { date: "desc" },
+    }),
+    prisma.expense.aggregate({
+      where: { userId: session.user.id },
+      _sum: { amount: true },
+    }),
+    prisma.expense.count({
+      where: { userId: session.user.id, taxDeductible: true },
+    }),
+    prisma.expense.aggregate({
+      where: { userId: session.user.id, taxDeductible: true },
+      _sum: { amount: true },
+    }),
+  ])
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Expenses</h1>
-          <p className="text-sm text-muted-foreground">
-            Track your business expenses
+          <h1 className="font-heading text-2xl font-bold tracking-tight">Expenses</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Track business expenses and stay organized for tax season.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/expenses/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Expense
-          </Link>
-        </Button>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Total Expenses
-          </p>
-          <p className="mt-1 text-2xl font-semibold">${total.toFixed(2)}</p>
-        </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Tax Deductible
-          </p>
-          <p className="mt-1 text-2xl font-semibold text-green-600">
-            ${taxDeductible.toFixed(2)}
-          </p>
-        </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Count
-          </p>
-          <p className="mt-1 text-2xl font-semibold">{expenses.length}</p>
-        </div>
+        <Link
+          href="/expenses/new"
+          className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90"
+        >
+          <Plus className="h-4 w-4" />
+          New expense
+        </Link>
       </div>
 
       {expenses.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12">
-          <p className="text-sm text-muted-foreground">No expenses yet</p>
-          <Button asChild className="mt-4">
-            <Link href="/expenses/new">Add your first expense</Link>
-          </Button>
+        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card/50 px-6 py-20 text-center">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+            <Wallet className="h-7 w-7 text-primary" />
+          </div>
+          <h2 className="font-heading text-xl font-semibold">No expenses yet</h2>
+          <p className="mt-2 max-w-md text-sm text-muted-foreground">
+            Track your business expenses so you never miss a write-off. Categorize them and
+            mark which ones are tax deductible.
+          </p>
+          <Link
+            href="/expenses/new"
+            className="mt-8 inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90"
+          >
+            Add your first expense
+          </Link>
         </div>
       ) : (
-        <div className="rounded-lg border">
-          {expenses.map((expense) => (
+        <div className="overflow-hidden rounded-xl border border-border">
+          {expenses.map((e, i) => (
             <div
-              key={expense.id}
-              className="flex items-center justify-between border-b px-4 py-3 last:border-b-0"
+              key={e.id}
+              className={`flex items-center justify-between px-5 py-4 ${
+                i < expenses.length - 1 ? "border-b border-border" : ""
+              }`}
             >
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                      categoryColors[expense.category] || categoryColors.OTHER
-                    }`}
-                  >
-                    {expense.category}
-                  </span>
-                  {expense.taxDeductible && (
-                    <span className="text-xs text-green-600 dark:text-green-400">
-                      Tax deductible
-                    </span>
-                  )}
+              <div className="flex items-center gap-4">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
                 </div>
-                <p className="mt-1 text-sm font-medium">{expense.description}</p>
-                <p className="text-xs text-muted-foreground">
-                  {expense.date.toLocaleDateString()}
-                  {expense.notes ? ` — ${expense.notes}` : ""}
-                </p>
+                <div>
+                  <p className="text-sm font-medium">{e.description}</p>
+                  <p className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                        categoryColors[e.category] || "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {e.category.charAt(0) + e.category.slice(1).toLowerCase()}
+                    </span>
+                    {e.taxDeductible && (
+                      <span className="text-emerald-600 dark:text-emerald-400">Tax deductible</span>
+                    )}
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium">
-                  ${expense.amount.toFixed(2)}
-                </span>
-                <DeleteExpenseButton id={expense.id} />
-              </div>
+              <span className="text-sm font-semibold">
+                ${e.amount.toFixed(2)}
+              </span>
             </div>
           ))}
         </div>

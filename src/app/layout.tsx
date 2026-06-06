@@ -13,9 +13,14 @@ const bricolageGrotesque = Bricolage_Grotesque({
 })
 
 export const metadata: Metadata = {
-  title: "Kredo — Freelancer Operating System",
+  title: "Kredo — The Freelancer OS",
   description:
-    "All-in-one platform for freelancers. Proposals, invoices, time tracking, and more.",
+    "All-in-one platform for freelancers. Proposals, invoices, time tracking, expenses, and client management.",
+  openGraph: {
+    title: "Kredo — The Freelancer OS",
+    description:
+      "All-in-one platform for freelancers. Proposals, invoices, time tracking, expenses, and client management.",
+  },
 }
 
 export default function RootLayout({
