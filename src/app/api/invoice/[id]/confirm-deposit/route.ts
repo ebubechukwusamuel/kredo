@@ -11,7 +11,10 @@ export async function POST(
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
-      include: { user: true },
+      include: {
+        user: true,
+        client: { select: { name: true, email: true } },
+      },
     })
     if (!invoice) {
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 })
@@ -29,40 +32,43 @@ export async function POST(
       },
     })
 
-    // Notify the freelancer that a client claims payment
+    // Look up project request for project name context
     const req = await prisma.projectRequest.findFirst({
       where: { invoiceId: id },
     })
 
-    if (req) {
-      try {
-        const brandName = invoice.user.brandName || invoice.user.name || "Freelancer"
-        const clientName = req.clientName
-        const projectName = req.projectName
+    // Always send notification to freelancer
+    const brandName = invoice.user.brandName || invoice.user.name || "Freelancer"
+    const clientName = invoice.client?.name || req?.clientName || "A client"
+    const projectName = req?.projectName || (invoice.client?.name ? `Invoice #${invoice.number}` : "a project")
 
-        const { subject, html } = paymentPendingNotificationEmail({
-          clientName,
-          projectName,
-          depositAmount: `${invoice.currency} ${depositAmount.toFixed(2)}`,
-          invoiceNumber: invoice.number,
-          invoiceLink: `${getBaseUrl()}/invoices/${id}`,
-          brandName,
-        })
-        await sendEmail({
-          to: invoice.user.email,
-          subject,
-          html,
-        })
-      } catch (e) {
-        console.error("[PENDING PAYMENT EMAIL] Failed to send to freelancer:", e)
-      }
+    try {
+      const { subject, html } = paymentPendingNotificationEmail({
+        clientName,
+        projectName,
+        depositAmount: `${invoice.currency} ${depositAmount.toFixed(2)}`,
+        invoiceNumber: invoice.number,
+        invoiceLink: `${getBaseUrl()}/invoices/${id}`,
+        brandName,
+      })
+      await sendEmail({
+        to: invoice.user.email,
+        subject,
+        html,
+        fromName: brandName,
+        replyTo: invoice.user.email,
+      })
+      console.log(`[PENDING PAYMENT] Notification sent to ${invoice.user.email}`)
+    } catch (e) {
+      console.error("[PENDING PAYMENT EMAIL] Failed to send to freelancer:", e)
     }
 
     return NextResponse.json({
       success: true,
       message: "Payment notification sent to freelancer for verification.",
     })
-  } catch {
+  } catch (e) {
+    console.error("[CONFIRM DEPOSIT ERROR]", e)
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 },
