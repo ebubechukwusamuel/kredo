@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { revalidatePath } from "next/cache"
-import { sendEmail, newRequestEmail, deliveryEmail, getBaseUrl } from "@/lib/email"
+import { sendEmail, newRequestEmail, deliveryEmail, finalPaymentReminderEmail, getBaseUrl } from "@/lib/email"
 
 export async function submitProjectRequest(slug: string, formData: FormData) {
   const user = await prisma.user.findUnique({ where: { slug } })
@@ -134,6 +134,38 @@ export async function submitDelivery(requestId: string, deliveryLink: string) {
     await sendEmail({ to: req.clientEmail, subject, html, fromName: brandName, replyTo: req.user.email })
   } catch (e) {
     console.error("[DELIVERY EMAIL] Failed to send to client:", e)
+  }
+
+  // Send final payment reminder if there's an invoice with remaining balance
+  if (req.invoice && req.invoice.depositPaid && req.invoice.total > (req.invoice.depositAmount || 0)) {
+    try {
+      const brandName = req.user.brandName || req.user.name || "Freelancer"
+      const brandColor = req.user.brandColor || "#e85d3a"
+      const slug = req.user.slug || "freelancer"
+      const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://kredo-gray.vercel.app"
+      const paymentLink = `${siteUrl}/${slug}/invoice/${req.invoice.id}`
+      const depositAmount = req.invoice.depositAmount || req.invoice.total * 0.5
+      const remainingBalance = req.invoice.total - depositAmount
+
+      const { subject, html } = finalPaymentReminderEmail({
+        clientName: req.clientName,
+        projectName: req.projectName,
+        remainingBalance: `${req.invoice.currency} ${remainingBalance.toFixed(2)}`,
+        invoiceNumber: req.invoice.number,
+        paymentLink,
+        brandColor,
+        brandName,
+      })
+      await sendEmail({
+        to: req.clientEmail,
+        subject,
+        html,
+        fromName: brandName,
+        replyTo: req.user.email,
+      })
+    } catch (e) {
+      console.error("[FINAL PAYMENT EMAIL] Failed to send to client:", e)
+    }
   }
 
   revalidatePath(`/requests/${requestId}`)

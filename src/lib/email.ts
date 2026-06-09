@@ -194,6 +194,48 @@ export function deliveryEmail({
   }
 }
 
+export function finalPaymentReminderEmail({
+  clientName,
+  projectName,
+  remainingBalance,
+  invoiceNumber,
+  paymentLink,
+  brandColor,
+  brandName,
+}: {
+  clientName: string
+  projectName: string
+  remainingBalance: string
+  invoiceNumber: string
+  paymentLink: string
+  brandColor: string
+  brandName: string
+}) {
+  return {
+    subject: `Final payment reminder for "${projectName}"`,
+    html: `
+      <html>
+        <head>${brandStyles(brandColor)}</head>
+        <body>
+          <div class="wrapper">
+            <div class="card">
+              <h1>Your project is delivered! 🎉</h1>
+              <p>Hi ${clientName},</p>
+              <p>Your project <strong>${projectName}</strong> has been delivered and is ready for you.</p>
+              <p>To complete payment, please settle the remaining balance of <strong>${remainingBalance}</strong> (Invoice #${invoiceNumber}).</p>
+              <div style="text-align:center;margin:32px 0">
+                <a href="${paymentLink}" class="btn">Pay Remaining Balance</a>
+              </div>
+              <p style="font-size:12px;color:#8a8278">Once the final payment is confirmed, you'll receive a receipt.</p>
+            </div>
+            <div class="footer">Powered by Kredo &middot; ${brandName}</div>
+          </div>
+        </body>
+      </html>
+    `,
+  }
+}
+
 export function newRequestEmail({
   freelancerName,
   clientName,
