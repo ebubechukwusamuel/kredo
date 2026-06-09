@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { InvoiceForm } from "@/components/forms/invoice-form"
+import { Receipt } from "lucide-react"
 
 export default async function NewInvoicePage(props: {
   searchParams?: Promise<{ clientId?: string; requestId?: string }>
@@ -18,14 +19,22 @@ export default async function NewInvoicePage(props: {
   })
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      <div>
-        <h1 className="font-heading text-2xl font-bold tracking-tight">New Invoice</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Create an invoice with line items
-        </p>
+    <div className="page-shell max-w-4xl page-stack">
+      <div className="page-header">
+        <div>
+          <div className="page-kicker">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-orange-500/20 bg-orange-500/10">
+              <Receipt className="h-3.5 w-3.5 text-orange-300" />
+            </span>
+            Billing
+          </div>
+          <h1 className="page-title mt-3">New Invoice</h1>
+          <p className="page-description">
+            Add line items, payment terms, and client details in one clean flow.
+          </p>
+        </div>
       </div>
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div className="form-card">
         <InvoiceForm
           clients={clients}
           initialClientId={searchParams?.clientId}

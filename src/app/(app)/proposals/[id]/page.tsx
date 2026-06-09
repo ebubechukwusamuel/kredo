@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { Button } from "@/components/ui/button"
 import { ProposalActions } from "@/components/forms/proposal-actions"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Calendar, DollarSign, FileText } from "lucide-react"
 import { PrintPdfButton } from "@/components/print-pdf-button"
 
 const statusLabels: Record<string, string> = {
@@ -17,12 +17,12 @@ const statusLabels: Record<string, string> = {
 }
 
 const statusStyles: Record<string, string> = {
-  DRAFT: "bg-muted text-muted-foreground",
-  SENT: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  VIEWED: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  ACCEPTED: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  DECLINED: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  EXPIRED: "bg-muted text-muted-foreground",
+  DRAFT: "border border-white/10 bg-white/5 text-white/45",
+  SENT: "border border-blue-500/20 bg-blue-500/10 text-blue-300",
+  VIEWED: "border border-yellow-500/20 bg-yellow-500/10 text-yellow-300",
+  ACCEPTED: "border border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
+  DECLINED: "border border-red-500/20 bg-red-500/10 text-red-300",
+  EXPIRED: "border border-white/10 bg-white/5 text-white/45",
 }
 
 export default async function ProposalDetailPage(
@@ -40,7 +40,7 @@ export default async function ProposalDetailPage(
   if (!proposal) notFound()
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell page-stack max-w-5xl">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
@@ -50,22 +50,22 @@ export default async function ProposalDetailPage(
           </Button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="page-title">
                 {proposal.title}
               </h1>
               <span
-                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${
                   statusStyles[proposal.status]
                 }`}
               >
                 {statusLabels[proposal.status]}
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="page-description">
               For{" "}
               <Link
                 href={`/clients/${proposal.client.id}`}
-                className="underline underline-offset-2 hover:text-foreground"
+                className="font-semibold text-orange-300 underline-offset-4 hover:underline"
               >
                 {proposal.client.name}
               </Link>
@@ -76,21 +76,23 @@ export default async function ProposalDetailPage(
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="metric-card">
+          <p className="flex items-center gap-2 text-xs font-bold text-white/42 uppercase tracking-wider">
+            <DollarSign className="h-4 w-4 text-orange-300" />
             Amount
           </p>
-          <p className="mt-1 text-2xl font-semibold">
+          <p className="mt-2 text-2xl font-bold text-white">
             {proposal.amount
               ? `$${proposal.amount.toFixed(2)}`
               : "Not specified"}
           </p>
         </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="metric-card">
+          <p className="flex items-center gap-2 text-xs font-bold text-white/42 uppercase tracking-wider">
+            <Calendar className="h-4 w-4 text-orange-300" />
             Created
           </p>
-          <p className="mt-1 text-sm">
+          <p className="mt-2 text-sm font-semibold text-white">
             {proposal.createdAt.toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
@@ -101,9 +103,15 @@ export default async function ProposalDetailPage(
       </div>
 
       {proposal.content && (
-        <div className="rounded-lg border p-6">
-          <div className="prose prose-sm max-w-none dark:prose-invert">
-            <pre className="whitespace-pre-wrap font-sans text-sm">
+        <div className="detail-card p-0">
+          <div className="flex items-center gap-3 border-b border-white/[0.06] px-6 py-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-orange-500/20 bg-orange-500/10">
+              <FileText className="h-4 w-4 text-orange-300" />
+            </div>
+            <h2 className="font-heading text-sm font-semibold text-white">Proposal Content</h2>
+          </div>
+          <div className="p-6">
+            <pre className="whitespace-pre-wrap font-sans text-sm leading-7 text-white/70">
               {proposal.content}
             </pre>
           </div>

@@ -42,7 +42,7 @@ export function PublicIntakeForm({
         </div>
         <h2 className="font-heading text-xl font-semibold">Request sent!</h2>
         <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-          Your project details have been sent. We'll review them and get back to you with a
+          Your project details have been sent. We&apos;ll review them and get back to you with a
           proposal shortly.
         </p>
       </div>

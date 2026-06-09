@@ -46,7 +46,7 @@ export default async function InvoicesPage() {
   const overdueCount = invoices.filter((i) => i.status === "OVERDUE").length
 
   return (
-    <div className="relative mx-auto max-w-5xl space-y-8 pb-12">
+    <div className="page-shell page-stack max-w-6xl">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-[5%] right-[10%] h-[350px] w-[350px] rounded-full bg-emerald-600/6 blur-[100px]" />
@@ -54,20 +54,20 @@ export default async function InvoicesPage() {
       </div>
 
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="page-header">
         <div>
-          <div className="mb-1 flex items-center gap-2">
+          <div className="page-kicker">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/20">
               <Receipt className="h-3.5 w-3.5 text-emerald-400" />
             </div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-white/25">Billing</span>
+            Billing
           </div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight text-white">Invoices</h1>
-          <p className="mt-1 text-sm text-white/45">Bill your clients and track payments.</p>
+          <h1 className="page-title mt-3">Invoices</h1>
+          <p className="page-description">Bill your clients and track payments.</p>
         </div>
         <Link
           href="/invoices/new"
-          className="inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-b from-red-500 to-red-600 px-5 text-sm font-semibold text-white shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all hover:shadow-[0_0_30px_rgba(239,68,68,0.45)] hover:-translate-y-0.5"
+          className="primary-action"
         >
           <Plus className="h-4 w-4" />
           New Invoice
@@ -114,17 +114,17 @@ export default async function InvoicesPage() {
           <h2 className="font-heading text-xl font-semibold text-white">No invoices yet</h2>
           <p className="mt-2 max-w-sm text-sm text-white/45">
             Invoices are how you get paid. Create one with line items, add tax, and send it to your
-            client. Track when it's viewed and when payment arrives.
+            client. Track when it&apos;s viewed and when payment arrives.
           </p>
           <Link
             href="/invoices/new"
-            className="mt-8 inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-to-b from-red-500 to-red-600 px-6 text-sm font-semibold text-white shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all hover:shadow-[0_0_30px_rgba(239,68,68,0.45)]"
+            className="primary-action mt-8"
           >
             Create your first invoice
           </Link>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03] backdrop-blur-sm">
+        <div className="list-shell">
           <div className="grid grid-cols-[1fr_auto_auto] gap-4 border-b border-white/[0.06] px-6 py-3">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-white/25">Invoice</span>
             <span className="text-[10px] font-semibold uppercase tracking-widest text-white/25">Amount</span>

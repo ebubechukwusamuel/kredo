@@ -51,27 +51,27 @@ export default async function ExpensesPage() {
   const deductibleAmount = deductibleTotal._sum.amount ?? 0
 
   return (
-    <div className="relative mx-auto max-w-5xl space-y-8 pb-12">
+    <div className="page-shell page-stack max-w-6xl">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-[5%] right-[5%] h-[300px] w-[300px] rounded-full bg-orange-600/7 blur-[100px]" />
       </div>
 
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="page-header">
         <div>
-          <div className="mb-1 flex items-center gap-2">
+          <div className="page-kicker">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 border border-orange-500/20">
               <Wallet className="h-3.5 w-3.5 text-orange-400" />
             </div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-white/25">Finance</span>
+            Finance
           </div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight text-white">Expenses</h1>
-          <p className="mt-1 text-sm text-white/45">Track business expenses and stay organized for tax season.</p>
+          <h1 className="page-title mt-3">Expenses</h1>
+          <p className="page-description">Track business expenses and stay organized for tax season.</p>
         </div>
         <Link
           href="/expenses/new"
-          className="inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-b from-red-500 to-red-600 px-5 text-sm font-semibold text-white shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all hover:shadow-[0_0_30px_rgba(239,68,68,0.45)] hover:-translate-y-0.5"
+          className="primary-action"
         >
           <Plus className="h-4 w-4" />
           New Expense
@@ -117,13 +117,13 @@ export default async function ExpensesPage() {
           </p>
           <Link
             href="/expenses/new"
-            className="mt-8 inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-to-b from-red-500 to-red-600 px-6 text-sm font-semibold text-white shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all hover:shadow-[0_0_30px_rgba(239,68,68,0.45)]"
+            className="primary-action mt-8"
           >
             Add your first expense
           </Link>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03] backdrop-blur-sm">
+        <div className="list-shell">
           <div className="grid grid-cols-[1fr_auto] border-b border-white/[0.06] px-6 py-3">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-white/25">Description</span>
             <span className="text-[10px] font-semibold uppercase tracking-widest text-white/25">Amount</span>

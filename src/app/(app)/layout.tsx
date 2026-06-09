@@ -17,8 +17,8 @@ export default async function AppLayout({
 
   return (
     <Providers>
-      <div className="flex h-screen overflow-hidden bg-[#09090B]">
-        <div className="no-print">
+      <div className="flex h-dvh overflow-hidden bg-transparent">
+        <div className="no-print hidden lg:block">
           <Sidebar />
         </div>
         <div className="flex flex-1 flex-col min-w-0">
@@ -26,16 +26,15 @@ export default async function AppLayout({
             <Header />
           </div>
           <main className="flex-1 overflow-auto">
-            {/* Subtle ambient glow in content area */}
             <div className="relative min-h-full">
               <div
                 className="pointer-events-none absolute inset-0 -z-10"
                 style={{
                   background:
-                    "radial-gradient(ellipse at 70% 0%, rgba(239,68,68,0.04) 0%, transparent 50%), radial-gradient(ellipse at 0% 80%, rgba(251,146,60,0.03) 0%, transparent 50%)",
+                    "radial-gradient(ellipse at 70% 0%, rgba(239,68,68,0.08) 0%, transparent 48%), radial-gradient(ellipse at 0% 80%, rgba(249,115,22,0.06) 0%, transparent 48%)",
                 }}
               />
-              <div className="p-8 animate-fade-in-up">{children}</div>
+              <div className="px-4 py-6 animate-fade-in-up sm:px-6 lg:px-8 lg:py-8">{children}</div>
             </div>
           </main>
         </div>

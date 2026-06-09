@@ -49,27 +49,27 @@ export default async function ProjectsPage() {
   const completedCount = projects.filter((p) => p.status === "COMPLETED").length
 
   return (
-    <div className="relative mx-auto max-w-5xl space-y-8 pb-12">
+    <div className="page-shell page-stack max-w-6xl">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-[10%] left-[20%] h-[300px] w-[300px] rounded-full bg-violet-600/8 blur-[100px]" />
       </div>
 
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="page-header">
         <div>
-          <div className="mb-1 flex items-center gap-2">
+          <div className="page-kicker">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-500/10 border border-violet-500/20">
               <Briefcase className="h-3.5 w-3.5 text-violet-400" />
             </div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-white/25">Workspace</span>
+            Workspace
           </div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight text-white">Projects</h1>
-          <p className="mt-1 text-sm text-white/45">Organize your work. Link everything to a project.</p>
+          <h1 className="page-title mt-3">Projects</h1>
+          <p className="page-description">Organize your work. Link everything to a project.</p>
         </div>
         <Link
           href="/projects/new"
-          className="inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-b from-red-500 to-red-600 px-5 text-sm font-semibold text-white shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all hover:shadow-[0_0_30px_rgba(239,68,68,0.45)] hover:-translate-y-0.5"
+          className="primary-action"
         >
           <Plus className="h-4 w-4" />
           New Project
@@ -86,7 +86,7 @@ export default async function ProjectsPage() {
           ].map((s) => (
             <div
               key={s.label}
-              className="rounded-2xl border border-white/8 bg-white/[0.03] px-5 py-4 backdrop-blur-sm"
+              className="metric-card"
             >
               <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
               <p className="mt-0.5 text-xs text-white/40">{s.label}</p>
@@ -107,7 +107,7 @@ export default async function ProjectsPage() {
           </p>
           <Link
             href="/projects/new"
-            className="mt-8 inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-to-b from-red-500 to-red-600 px-6 text-sm font-semibold text-white shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all hover:shadow-[0_0_30px_rgba(239,68,68,0.45)]"
+            className="primary-action mt-8"
           >
             Create your first project
           </Link>
@@ -120,7 +120,7 @@ export default async function ProjectsPage() {
               <Link
                 key={p.id}
                 href={`/projects/${p.id}`}
-                className="group relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03] p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/15 hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+                className="app-panel group relative overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.055]"
               >
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-500/4 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 

@@ -10,8 +10,10 @@ import {
   Users,
   Briefcase,
   Play,
-  TrendingUp,
+  Flame,
 } from "lucide-react"
+import { KredoLogo } from "@/components/kredo-logo"
+import { ScrollReveal } from "@/components/scroll-reveal"
 import "./landing.css"
 
 export default async function LandingPage() {
@@ -29,12 +31,7 @@ export default async function LandingPage() {
       {/* Navbar */}
       <nav className="kredo-nav">
         <div className="kredo-nav-left">
-          <Link href="/" className="kredo-nav-logo">
-            <div className="kredo-nav-logo-icon">
-              <div />
-            </div>
-            <span>Kredo</span>
-          </Link>
+          <KredoLogo href="/" tagline={false} className="kredo-nav-logo" />
           <div className="kredo-nav-links">
             <a href="#features" className="kredo-nav-link">
               Features
@@ -71,7 +68,7 @@ export default async function LandingPage() {
           </h1>
 
           <p className="hero-subtitle">
-            Proposals, invoices, time tracking, expenses, and client management — all in one place. 
+            Proposals, invoices, time tracking, expenses, and client management - all in one place.
             Kredo helps you run your business like a CEO, not a contractor.
           </p>
 
@@ -93,7 +90,9 @@ export default async function LandingPage() {
               {/* Sidebar Mock */}
               <div className="preview-sidebar">
                 <div className="preview-logo">
-                  <div className="logo-square" />
+                  <div className="brand-gradient flex h-5 w-5 items-center justify-center rounded-md">
+                    <Flame className="h-3 w-3 fill-white/15 text-white" />
+                  </div>
                   <span>Kredo</span>
                 </div>
                 <div className="preview-nav-items">
@@ -111,7 +110,7 @@ export default async function LandingPage() {
                 <div className="preview-header">
                   <div>
                     <h3 className="preview-title">Good morning, Jane</h3>
-                    <p className="preview-subtitle">Here's a snapshot of your freelance business.</p>
+                    <p className="preview-subtitle">Here&apos;s a snapshot of your freelance business.</p>
                   </div>
                   <div className="preview-date">June 2026</div>
                 </div>
@@ -193,17 +192,18 @@ export default async function LandingPage() {
       </section>
 
       {/* Features Grid Section */}
-      <section id="features" className="features-section-new">
-        <div className="section-header">
-          <h2 className="section-title">Everything you need to run your business</h2>
-          <p className="section-desc">
-            Stop juggling spreadsheets, notes apps, and sticky notes. Kredo brings every 
-            part of your freelance workflow into one unified place.
-          </p>
-        </div>
+      <ScrollReveal>
+        <section id="features" className="features-section-new">
+          <div className="section-header">
+            <h2 className="section-title">Everything you need to run your business</h2>
+            <p className="section-desc">
+              Stop juggling spreadsheets, notes apps, and sticky notes. Kredo brings every 
+              part of your freelance workflow into one unified place.
+            </p>
+          </div>
 
-        {/* Bento Grid */}
-        <div className="bento-grid-new">
+          {/* Bento Grid */}
+          <div className="bento-grid-new">
           
           {/* Tile 1: Client Management */}
           <div className="bento-tile-new col-span-2">
@@ -213,7 +213,7 @@ export default async function LandingPage() {
               </div>
               <h3 className="bento-tile-title">Client Management</h3>
               <p className="bento-tile-desc">
-                Keep every client relationship organized. Contact info, project history, proposals, and invoices — all in one place.
+                Keep every client relationship organized. Contact info, project history, proposals, and invoices - all in one place.
               </p>
             </div>
             {/* Visual */}
@@ -336,11 +336,13 @@ export default async function LandingPage() {
             </div>
           </div>
 
-        </div>
-      </section>
+          </div>
+        </section>
+      </ScrollReveal>
 
       {/* How it Works / Workflow Section */}
-      <section id="workflow" className="workflow-section">
+      <ScrollReveal delay={120}>
+        <section id="workflow" className="workflow-section">
         <div className="section-header">
           <h2 className="section-title">How Kredo works</h2>
           <p className="section-desc">
@@ -357,20 +359,23 @@ export default async function LandingPage() {
           <div className="step-card">
             <div className="step-num">02</div>
             <h3 className="step-card-title">Send a Proposal</h3>
-            <p className="step-card-desc">Create a proposal, set your rate, and send it. Know the moment it's viewed.</p>
+            <p className="step-card-desc">Create a proposal, set your rate, and send it. Know the moment it&apos;s viewed.</p>
           </div>
           <div className="step-card">
             <div className="step-num">03</div>
             <h3 className="step-card-title">Track & Invoice</h3>
             <p className="step-card-desc">Log time, track expenses, and invoice your client when the work is done. Get paid faster.</p>
           </div>
-        </div>
-      </section>
+          </div>
+        </section>
+      </ScrollReveal>
 
       {/* CTA Section */}
-      <section className="cta-section">
-        <div className="cta-glow" />
-        <h2 className="cta-title">Ready to take control of your freelance business?</h2>
+      <ScrollReveal direction="none">
+        <section className="cta-section">
+          <div className="cta-glow" />
+          <div className="cta-glow-2" />
+          <h2 className="cta-title">Ready to take control of your freelance business?</h2>
         <p className="cta-subtitle">
           Join independent professionals who use Kredo to manage their business with clarity and confidence.
         </p>
@@ -381,6 +386,7 @@ export default async function LandingPage() {
           </Link>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* Footer */}
       <footer className="footer-new">

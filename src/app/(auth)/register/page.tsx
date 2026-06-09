@@ -4,6 +4,7 @@ import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { KredoLogo } from "@/components/kredo-logo"
 import "../../landing.css"
 
 export default function RegisterPage() {
@@ -67,12 +68,7 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-sm relative z-10 p-8 rounded-2xl bg-[#09090B]/60 backdrop-blur-xl border border-white/10 shadow-2xl">
         <div className="mb-8 text-center">
-          <Link href="/" className="kredo-nav-logo justify-center mb-6">
-            <div className="kredo-nav-logo-icon">
-              <div />
-            </div>
-            Kredo
-          </Link>
+          <KredoLogo href="/" tagline={false} className="mb-6 justify-center" />
           <h1 className="mt-6 text-2xl font-bold tracking-tight text-[#FAFAFA]">
             Create your account
           </h1>

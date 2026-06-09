@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db"
 import { ClientForm } from "@/components/forms/client-form"
 import { deleteClient } from "@/app/actions/client"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, FileText, Receipt, Users } from "lucide-react"
 
 export default async function ClientDetailPage(
   props: { params: Promise<{ id: string }> },
@@ -27,7 +27,7 @@ export default async function ClientDetailPage(
   ])
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell page-stack max-w-4xl">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/clients">
@@ -35,28 +35,38 @@ export default async function ClientDetailPage(
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <div className="page-kicker">
+            <Users className="h-3.5 w-3.5 text-orange-300" />
+            Client Profile
+          </div>
+          <h1 className="page-title mt-3">
             {client.name}
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="page-description">
             {client.company || client.email || "Client details"}
           </p>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border p-4">
-          <p className="text-sm text-muted-foreground">Proposals</p>
-          <p className="text-2xl font-semibold">{proposalCount}</p>
+        <div className="metric-card">
+          <div className="flex items-center gap-2 text-sm text-white/55">
+            <FileText className="h-4 w-4 text-orange-300" />
+            Proposals
+          </div>
+          <p className="mt-2 text-3xl font-bold text-white">{proposalCount}</p>
         </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-sm text-muted-foreground">Invoices</p>
-          <p className="text-2xl font-semibold">{invoiceCount}</p>
+        <div className="metric-card">
+          <div className="flex items-center gap-2 text-sm text-white/55">
+            <Receipt className="h-4 w-4 text-orange-300" />
+            Invoices
+          </div>
+          <p className="mt-2 text-3xl font-bold text-white">{invoiceCount}</p>
         </div>
       </div>
 
-      <div>
-        <h2 className="text-lg font-medium mb-4">Edit Client</h2>
+      <div className="form-card">
+        <h2 className="mb-5 text-lg font-semibold text-white">Edit Client</h2>
         <ClientForm
           client={{
             id: client.id,
@@ -71,7 +81,7 @@ export default async function ClientDetailPage(
         />
       </div>
 
-      <form action={deleteClient.bind(null, client.id)}>
+      <form action={deleteClient.bind(null, client.id)} className="pt-2">
         <Button variant="destructive" type="submit">
           Delete Client
         </Button>

@@ -171,13 +171,14 @@ export default async function DashboardPage() {
         <>
           {/* Stats Grid */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((s) => {
+            {stats.map((s, i) => {
               const Icon = s.icon
               return (
                 <Link
                   key={s.label}
                   href={s.href}
-                  className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-[#09090B]/60 backdrop-blur-md p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 ${s.glowColor}`}
+                  className={`animate-scale-in group relative overflow-hidden rounded-2xl border border-white/10 bg-[#09090B]/60 backdrop-blur-md p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 ${s.glowColor}`}
+                  style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 border border-white/10">
@@ -232,9 +233,8 @@ export default async function DashboardPage() {
                     <Link
                       key={inv.id}
                       href={`/invoices/${inv.id}`}
-                      className={`flex items-center justify-between px-6 py-5 transition-colors hover:bg-white/5 ${
-                        i < recentInvoices.length - 1 ? "border-b border-white/10" : ""
-                      }`}
+                      className="animate-fade-in-up flex items-center justify-between px-6 py-5 transition-colors hover:bg-white/5 border-b border-white/10 last:border-b-0"
+                      style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
                     >
                       <div className="flex items-center gap-5">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 border border-white/10">
@@ -273,7 +273,8 @@ export default async function DashboardPage() {
                 <div className="mt-5 flex flex-col gap-3">
                   <Link
                     href="/clients/new"
-                    className="group flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20"
+                    className="animate-fade-in-up group flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20"
+                    style={{ animationDelay: "0ms", animationFillMode: "backwards" }}
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
                       <Users className="h-4 w-4" />
@@ -282,7 +283,8 @@ export default async function DashboardPage() {
                   </Link>
                   <Link
                     href="/proposals/new"
-                    className="group flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20"
+                    className="animate-fade-in-up group flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20"
+                    style={{ animationDelay: "60ms", animationFillMode: "backwards" }}
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
                       <FileText className="h-4 w-4" />
@@ -291,7 +293,8 @@ export default async function DashboardPage() {
                   </Link>
                   <Link
                     href="/invoices/new"
-                    className="group flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20"
+                    className="animate-fade-in-up group flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20"
+                    style={{ animationDelay: "120ms", animationFillMode: "backwards" }}
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
                       <DollarSign className="h-4 w-4" />
@@ -300,7 +303,8 @@ export default async function DashboardPage() {
                   </Link>
                   <Link
                     href="/time"
-                    className="group flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20"
+                    className="animate-fade-in-up group flex items-center gap-4 rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20"
+                    style={{ animationDelay: "180ms", animationFillMode: "backwards" }}
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10 text-red-400">
                       <Clock className="h-4 w-4" />

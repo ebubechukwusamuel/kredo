@@ -40,7 +40,7 @@ export default async function PublicPage(props: { params: Promise<{ slug: string
               Work with {user.brandName || user.name}
             </h1>
             <p className="mt-2 text-muted-foreground">
-              Tell us about your project and we'll get back to you with a proposal.
+              Tell us about your project and we&apos;ll get back to you with a proposal.
             </p>
           </div>
           <div className="rounded-xl border border-border bg-card p-6">

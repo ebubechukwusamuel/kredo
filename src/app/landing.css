@@ -37,7 +37,9 @@
 }
 
 .hero-preview-wrapper {
-  animation: land-scale-in 0.7s ease-out 0.3s both;
+  animation:
+    land-scale-in 0.7s ease-out 0.3s both,
+    land-float 6s ease-in-out 1.2s infinite;
 }
 
 .features-section-new {
@@ -104,6 +106,22 @@
   animation: land-fade-in 0.8s ease-out both;
 }
 
+.kredo-landing::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  opacity: 0.012;
+  pointer-events: none;
+  z-index: 9999;
+  animation: land-grain-move 8s steps(4) infinite;
+  mix-blend-mode: overlay;
+}
+
 .kredo-landing * {
   box-sizing: border-box;
 }
@@ -146,13 +164,26 @@
 }
 
 @keyframes pulse-glow-1 {
-  0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
-  100% { transform: scale(1.1) translate(20px, 10px); opacity: 0.8; }
+  0% { transform: scale(1) translate(0, 0); opacity: 0.5; }
+  100% { transform: scale(1.12) translate(25px, 15px); opacity: 0.8; }
 }
 
 @keyframes pulse-glow-2 {
   0% { transform: scale(1) translate(0, 0); opacity: 0.7; }
   100% { transform: scale(1.15) translate(-10px, -20px); opacity: 0.9; }
+}
+
+@keyframes land-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes land-grain-move {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-5%, -5%) rotate(0.5deg); }
+  50% { transform: translate(-10%, 5%) rotate(-0.5deg); }
+  75% { transform: translate(5%, -2%) rotate(0.3deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 /* Navbar */
@@ -1156,6 +1187,25 @@
   border-radius: 50%;
   top: 50%;
   transform: translateY(-50%);
+  animation: pulse-cta-glow 4s ease-in-out infinite alternate;
+}
+
+.cta-glow-2 {
+  position: absolute;
+  width: 400px;
+  height: 300px;
+  background: rgba(249, 115, 22, 0.12);
+  filter: blur(80px);
+  z-index: -1;
+  border-radius: 50%;
+  top: 30%;
+  left: -10%;
+  animation: pulse-cta-glow 5s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes pulse-cta-glow {
+  0% { transform: translateY(-50%) scale(1); opacity: 0.5; }
+  100% { transform: translateY(-50%) scale(1.2); opacity: 0.8; }
 }
 
 .cta-title {
@@ -1214,6 +1264,45 @@
 
 .footer-link:hover {
   color: #FAFAFA;
+}
+
+/* Staggered entrance delays for bento tiles */
+.bento-tile-new:nth-child(1) { animation-delay: 0ms; }
+.bento-tile-new:nth-child(2) { animation-delay: 80ms; }
+.bento-tile-new:nth-child(3) { animation-delay: 160ms; }
+.bento-tile-new:nth-child(4) { animation-delay: 240ms; }
+.bento-tile-new:nth-child(5) { animation-delay: 320ms; }
+
+.step-card:nth-child(1) { animation-delay: 0ms; }
+.step-card:nth-child(2) { animation-delay: 120ms; }
+.step-card:nth-child(3) { animation-delay: 240ms; }
+
+/* Enhanced hero tagline */
+.hero-badge:hover {
+  transform: scale(1.02);
+  border-color: rgba(239, 68, 68, 0.35);
+  transition: all 0.3s ease;
+}
+
+/* CTA button enhanced hover */
+.btn-primary-large {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary-large::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  background-size: 200% 100%;
+  background-position: -200% center;
+  transition: background-position 0.6s ease;
+  pointer-events: none;
+}
+
+.btn-primary-large:hover::before {
+  background-position: 200% center;
 }
 
 /* Responsive adjustments */

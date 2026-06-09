@@ -3,6 +3,7 @@
 import { useActionState } from "react"
 import { Button } from "@/components/ui/button"
 import { completeOnboarding } from "@/app/actions/onboarding"
+import { Flame } from "lucide-react"
 
 export default function OnboardingPage() {
   const [, formAction, pending] = useActionState(
@@ -11,17 +12,21 @@ export default function OnboardingPage() {
   )
 
   return (
-    <div className="mx-auto max-w-lg space-y-8 py-12">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Welcome to Kredo
-        </h1>
-        <p className="text-muted-foreground">
-          Set up your profile to get started. You can change these anytime.
-        </p>
-      </div>
+    <div className="page-shell max-w-2xl py-8">
+      <div className="app-surface overflow-hidden rounded-2xl">
+        <div className="border-b border-white/10 bg-gradient-to-br from-red-500/12 to-orange-500/5 p-6 text-center sm:p-8">
+          <div className="brand-gradient mx-auto flex h-14 w-14 items-center justify-center rounded-2xl shadow-[0_18px_45px_rgba(239,68,68,0.28)]">
+            <Flame className="h-6 w-6 fill-white/15 text-white" />
+          </div>
+          <h1 className="mt-5 text-3xl font-bold tracking-tight text-white">
+            Welcome to Kredo
+          </h1>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/58">
+            Set up your business defaults once. You can update them anytime from settings.
+          </p>
+        </div>
 
-      <form action={formAction} className="space-y-4">
+      <form action={formAction} className="space-y-5 p-6 sm:p-8">
         <div className="space-y-2">
           <label htmlFor="company" className="text-sm font-medium">
             Company or Business Name
@@ -48,7 +53,7 @@ export default function OnboardingPage() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <label htmlFor="currency" className="text-sm font-medium">
               Default Currency
@@ -83,10 +88,11 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        <Button type="submit" className="w-full" disabled={pending}>
+        <Button type="submit" className="w-full" size="lg" disabled={pending}>
           {pending ? "Setting up..." : "Get Started"}
         </Button>
       </form>
+      </div>
     </div>
   )
 }

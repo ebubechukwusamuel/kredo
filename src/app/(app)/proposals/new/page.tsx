@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { ProposalForm } from "@/components/forms/proposal-form"
+import { FileText } from "lucide-react"
 
 export default async function NewProposalPage() {
   const session = await auth()
@@ -14,14 +15,22 @@ export default async function NewProposalPage() {
   })
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      <div>
-        <h1 className="font-heading text-2xl font-bold tracking-tight">New Proposal</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Create a proposal for your client
-        </p>
+    <div className="page-shell max-w-3xl page-stack">
+      <div className="page-header">
+        <div>
+          <div className="page-kicker">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-red-500/20 bg-red-500/10">
+              <FileText className="h-3.5 w-3.5 text-orange-300" />
+            </span>
+            Sales
+          </div>
+          <h1 className="page-title mt-3">New Proposal</h1>
+          <p className="page-description">
+            Build a clear offer with scope, price, and terms your client can act on.
+          </p>
+        </div>
       </div>
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div className="form-card">
         <ProposalForm clients={clients} />
       </div>
     </div>

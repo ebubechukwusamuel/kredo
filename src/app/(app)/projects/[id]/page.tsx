@@ -4,13 +4,13 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { Button } from "@/components/ui/button"
 import { ProjectDetailActions } from "@/components/forms/project-detail-actions"
-import { ArrowLeft, Edit3 } from "lucide-react"
+import { ArrowLeft, Briefcase, Calendar, Clock, DollarSign } from "lucide-react"
 
 const statusStyles: Record<string, string> = {
-  ACTIVE: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  ON_HOLD: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  COMPLETED: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  CANCELLED: "bg-muted text-muted-foreground",
+  ACTIVE: "border border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
+  ON_HOLD: "border border-amber-500/20 bg-amber-500/10 text-amber-300",
+  COMPLETED: "border border-blue-500/20 bg-blue-500/10 text-blue-300",
+  CANCELLED: "border border-white/10 bg-white/5 text-white/45",
 }
 
 const statusLabels: Record<string, string> = {
@@ -54,7 +54,7 @@ export default async function ProjectDetailPage(
   const totalHours = Math.round((timeSum._sum.duration ?? 0) / 3600)
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell page-stack max-w-6xl">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
@@ -64,22 +64,22 @@ export default async function ProjectDetailPage(
           </Button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="page-title">
                 {project.name}
               </h1>
               <span
-                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${
                   statusStyles[project.status]
                 }`}
               >
                 {statusLabels[project.status]}
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="page-description">
               Client:{" "}
               <Link
                 href={`/clients/${project.client.id}`}
-                className="underline underline-offset-2 hover:text-foreground"
+                className="font-semibold text-orange-300 underline-offset-4 hover:underline"
               >
                 {project.client.name}
               </Link>
@@ -89,35 +89,39 @@ export default async function ProjectDetailPage(
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="metric-card">
+          <p className="flex items-center gap-2 text-xs font-bold text-white/42 uppercase tracking-wider">
+            <DollarSign className="h-4 w-4 text-orange-300" />
             Budget
           </p>
-          <p className="mt-1 text-xl font-semibold">
+          <p className="mt-2 text-xl font-bold text-white">
             {project.budget
               ? `$${project.budget.toFixed(2)}`
               : "Not set"}
           </p>
         </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="metric-card">
+          <p className="flex items-center gap-2 text-xs font-bold text-white/42 uppercase tracking-wider">
+            <DollarSign className="h-4 w-4 text-orange-300" />
             Rate
           </p>
-          <p className="mt-1 text-xl font-semibold">
+          <p className="mt-2 text-xl font-bold text-white">
             {project.rate ? `$${project.rate.toFixed(2)}/hr` : "Not set"}
           </p>
         </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="metric-card">
+          <p className="flex items-center gap-2 text-xs font-bold text-white/42 uppercase tracking-wider">
+            <Clock className="h-4 w-4 text-orange-300" />
             Time Tracked
           </p>
-          <p className="mt-1 text-xl font-semibold">{totalHours}h</p>
+          <p className="mt-2 text-xl font-bold text-white">{totalHours}h</p>
         </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="metric-card">
+          <p className="flex items-center gap-2 text-xs font-bold text-white/42 uppercase tracking-wider">
+            <Calendar className="h-4 w-4 text-orange-300" />
             {project.deadline ? "Deadline" : "Started"}
           </p>
-          <p className="mt-1 text-sm">
+          <p className="mt-2 text-sm font-semibold text-white">
             {(project.deadline ?? project.startDate)?.toLocaleDateString(
               "en-US",
               { year: "numeric", month: "long", day: "numeric" },
@@ -127,38 +131,41 @@ export default async function ProjectDetailPage(
       </div>
 
       {project.description && (
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+        <div className="detail-card">
+          <p className="text-xs font-bold text-white/42 uppercase tracking-wider mb-2">
             Description
           </p>
-          <p className="text-sm whitespace-pre-wrap">{project.description}</p>
+          <p className="text-sm leading-6 text-white/70 whitespace-pre-wrap">{project.description}</p>
         </div>
       )}
 
       {project.notes && (
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+        <div className="detail-card">
+          <p className="text-xs font-bold text-white/42 uppercase tracking-wider mb-2">
             Notes
           </p>
-          <p className="text-sm whitespace-pre-wrap">{project.notes}</p>
+          <p className="text-sm leading-6 text-white/70 whitespace-pre-wrap">{project.notes}</p>
         </div>
       )}
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-3">
-          <h3 className="text-sm font-medium">Recent Proposals</h3>
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+            <Briefcase className="h-4 w-4 text-orange-300" />
+            Recent Proposals
+          </h3>
           {project.proposals.length === 0 ? (
             <p className="text-sm text-muted-foreground">No proposals</p>
           ) : (
-            <div className="rounded-lg border divide-y">
+            <div className="list-shell divide-y divide-white/[0.06]">
               {project.proposals.map((p) => (
                 <Link
                   key={p.id}
                   href={`/proposals/${p.id}`}
-                  className="flex items-center justify-between px-3 py-2 text-sm hover:bg-muted/50"
+                  className="flex items-center justify-between px-4 py-3 text-sm text-white/75 hover:bg-white/[0.05]"
                 >
                   <span>{p.title}</span>
-                  <span className="text-muted-foreground">{p.status}</span>
+                  <span className="text-white/42">{p.status}</span>
                 </Link>
               ))}
             </div>
@@ -166,19 +173,22 @@ export default async function ProjectDetailPage(
         </div>
 
         <div className="space-y-3">
-          <h3 className="text-sm font-medium">Recent Invoices</h3>
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+            <DollarSign className="h-4 w-4 text-orange-300" />
+            Recent Invoices
+          </h3>
           {project.invoices.length === 0 ? (
             <p className="text-sm text-muted-foreground">No invoices</p>
           ) : (
-            <div className="rounded-lg border divide-y">
+            <div className="list-shell divide-y divide-white/[0.06]">
               {project.invoices.map((inv) => (
                 <Link
                   key={inv.id}
                   href={`/invoices/${inv.id}`}
-                  className="flex items-center justify-between px-3 py-2 text-sm hover:bg-muted/50"
+                  className="flex items-center justify-between px-4 py-3 text-sm text-white/75 hover:bg-white/[0.05]"
                 >
                   <span>{inv.number}</span>
-                  <span className="text-muted-foreground">
+                  <span className="text-white/42">
                     ${inv.total.toFixed(0)}
                   </span>
                 </Link>

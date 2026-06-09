@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db"
 import { Button } from "@/components/ui/button"
 import { InvoiceActions } from "@/components/forms/invoice-actions"
 import { ConfirmPaymentButton } from "@/components/forms/confirm-payment-button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Calendar, DollarSign, Receipt } from "lucide-react"
 import { PrintPdfButton } from "@/components/print-pdf-button"
 import QRCode from "qrcode"
 
@@ -20,13 +20,13 @@ const statusLabels: Record<string, string> = {
 }
 
 const statusStyles: Record<string, string> = {
-  DRAFT: "bg-muted text-muted-foreground",
-  SENT: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  VIEWED: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  PARTIAL: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-  PAID: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  OVERDUE: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  CANCELLED: "bg-muted text-muted-foreground",
+  DRAFT: "border border-white/10 bg-white/5 text-white/45",
+  SENT: "border border-blue-500/20 bg-blue-500/10 text-blue-300",
+  VIEWED: "border border-yellow-500/20 bg-yellow-500/10 text-yellow-300",
+  PARTIAL: "border border-orange-500/20 bg-orange-500/10 text-orange-300",
+  PAID: "border border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
+  OVERDUE: "border border-red-500/20 bg-red-500/10 text-red-300",
+  CANCELLED: "border border-white/10 bg-white/5 text-white/45",
 }
 
 function formatCurrency(amount: number, currency: string) {
@@ -86,7 +86,7 @@ export default async function InvoiceDetailPage(
   const qrDataUrl = await QRCode.toDataURL(paymentUrl, { width: 160, margin: 0, color: { dark: "#ffffff", light: "#000000" } })
 
   return (
-    <div className="space-y-6">
+    <div className="page-shell page-stack max-w-6xl">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
@@ -96,22 +96,22 @@ export default async function InvoiceDetailPage(
           </Button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="page-title">
                 {invoice.number}
               </h1>
               <span
-                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${
                   statusStyles[invoice.status]
                 }`}
               >
                 {statusLabels[invoice.status]}
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="page-description">
               For{" "}
               <Link
                 href={`/clients/${invoice.client.id}`}
-                className="underline underline-offset-2 hover:text-foreground"
+                className="font-semibold text-orange-300 underline-offset-4 hover:underline"
               >
                 {invoice.client.name}
               </Link>
@@ -122,35 +122,38 @@ export default async function InvoiceDetailPage(
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="metric-card">
+          <p className="flex items-center gap-2 text-xs font-bold text-white/42 uppercase tracking-wider">
+            <DollarSign className="h-4 w-4 text-orange-300" />
             Total
           </p>
-          <p className="mt-1 text-2xl font-semibold">
+          <p className="mt-2 text-2xl font-bold text-white">
             {invoice.currency} {invoice.total.toFixed(2)}
           </p>
         </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="metric-card">
+          <p className="flex items-center gap-2 text-xs font-bold text-white/42 uppercase tracking-wider">
+            <Receipt className="h-4 w-4 text-orange-300" />
             Subtotal
           </p>
-          <p className="mt-1 text-lg font-medium">
+          <p className="mt-2 text-lg font-bold text-white">
             {invoice.currency} {invoice.amount.toFixed(2)}
           </p>
         </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="metric-card">
+          <p className="text-xs font-bold text-white/42 uppercase tracking-wider">
             Tax
           </p>
-          <p className="mt-1 text-lg font-medium">
+          <p className="mt-2 text-lg font-bold text-white">
             {invoice.currency} {invoice.tax.toFixed(2)}
           </p>
         </div>
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="metric-card">
+          <p className="flex items-center gap-2 text-xs font-bold text-white/42 uppercase tracking-wider">
+            <Calendar className="h-4 w-4 text-orange-300" />
             Due Date
           </p>
-          <p className="mt-1 text-sm">
+          <p className="mt-2 text-sm font-semibold text-white">
             {invoice.dueDate
               ? invoice.dueDate.toLocaleDateString("en-US", {
                   year: "numeric",
@@ -162,46 +165,46 @@ export default async function InvoiceDetailPage(
         </div>
       </div>
 
-      <div className="rounded-lg border">
-        <div className="border-b bg-muted/50 px-4 py-2">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+      <div className="list-shell">
+        <div className="border-b border-white/[0.06] bg-white/[0.03] px-4 py-3">
+          <p className="text-xs font-bold text-white/42 uppercase tracking-wider">
             Line Items
           </p>
         </div>
-        <div className="divide-y">
+        <div className="divide-y divide-white/[0.06]">
           {invoice.items.map((item) => (
             <div
               key={item.id}
               className="flex items-center justify-between px-4 py-3"
             >
               <div className="flex-1">
-                <p className="text-sm">{item.description}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm font-medium text-white">{item.description}</p>
+                <p className="text-xs text-white/42">
                   {item.quantity} &times; {invoice.currency}{" "}
                   {item.rate.toFixed(2)}
                 </p>
               </div>
-              <p className="text-sm font-medium">
+              <p className="text-sm font-bold text-white">
                 {invoice.currency} {item.amount.toFixed(2)}
               </p>
             </div>
           ))}
         </div>
-        <div className="border-t px-4 py-3">
+        <div className="border-t border-white/[0.06] bg-white/[0.02] px-4 py-3">
           <div className="ml-auto w-60 space-y-1 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-white/45">Subtotal</span>
               <span>
                 {invoice.currency} {invoice.amount.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Tax</span>
+              <span className="text-white/45">Tax</span>
               <span>
                 {invoice.currency} {invoice.tax.toFixed(2)}
               </span>
             </div>
-            <div className="flex justify-between border-t pt-1 font-medium">
+            <div className="flex justify-between border-t border-white/10 pt-2 font-bold text-white">
               <span>Total</span>
               <span>
                 {invoice.currency} {invoice.total.toFixed(2)}
@@ -212,13 +215,13 @@ export default async function InvoiceDetailPage(
       </div>
 
       {invoice.payments.length > 0 && (
-        <div className="rounded-lg border">
-          <div className="border-b bg-muted/50 px-4 py-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="list-shell">
+          <div className="border-b border-white/[0.06] bg-white/[0.03] px-4 py-3">
+            <p className="text-xs font-bold text-white/42 uppercase tracking-wider">
               Payments
             </p>
           </div>
-          <div className="divide-y">
+          <div className="divide-y divide-white/[0.06]">
             {invoice.payments.map((payment) => (
               <div
                 key={payment.id}
@@ -230,7 +233,7 @@ export default async function InvoiceDetailPage(
                       {payment.date.toLocaleDateString()}
                     </p>
                     {payment.reference && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-white/42">
                         Ref: {payment.reference}
                       </p>
                     )}
@@ -260,11 +263,11 @@ export default async function InvoiceDetailPage(
       )}
 
       {invoice.notes && (
-        <div className="rounded-lg border p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+        <div className="detail-card">
+          <p className="text-xs font-bold text-white/42 uppercase tracking-wider mb-2">
             Notes
           </p>
-          <p className="text-sm whitespace-pre-wrap">{invoice.notes}</p>
+          <p className="text-sm leading-6 text-white/65 whitespace-pre-wrap">{invoice.notes}</p>
         </div>
       )}
 
