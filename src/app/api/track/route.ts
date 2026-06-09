@@ -83,7 +83,12 @@ async function googleFetch(url: string, opts?: RequestInit) {
         "Content-Type": "application/json",
       },
     })
-    return r.json()
+    const text = await r.text()
+    try {
+      return JSON.parse(text)
+    } catch {
+      return { error: "Invalid JSON response", status: r.status, body: text.slice(0, 500) }
+    }
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Fetch failed"
     return { error: msg }
