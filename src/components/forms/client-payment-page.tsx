@@ -3,6 +3,12 @@
 import { useState, useRef } from "react"
 import { CheckCircle, Copy, Printer } from "lucide-react"
 
+const DEFAULT_TERMS = `1. Payment: 50% deposit is required to begin work. The remaining 50% is due upon delivery.
+2. Timeline: Project delivery timeline begins after deposit confirmation.
+3. Revisions: Up to 3 rounds of revisions are included. Additional revisions will be billed separately.
+4. Cancellation: If cancelled after work has begun, the deposit is non-refundable.
+5. Ownership: Full ownership and rights transfer upon final payment.`
+
 interface ClientPaymentPageProps {
   invoice: {
     number: string
@@ -16,6 +22,7 @@ interface ClientPaymentPageProps {
       rate: number
       amount: number
     }>
+    terms: string | null
   }
   client: {
     name: string
@@ -387,6 +394,24 @@ export function ClientPaymentPage({
             </div>
           )}
         </div>
+
+          {/* Terms & Conditions */}
+          {(invoice.terms || DEFAULT_TERMS) && (
+            <div style={{
+              margin: "0 32px 32px",
+              padding: "20px 24px",
+              borderRadius: "12px",
+              background: "rgba(255,255,255,0.015)",
+              border: "1px solid rgba(255,255,255,0.05)",
+            }}>
+              <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.3)", marginBottom: "10px" }}>
+                Terms &amp; Conditions
+              </div>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
+                {invoice.terms || DEFAULT_TERMS}
+              </div>
+            </div>
+          )}
 
         {/* Footer */}
         <div style={{

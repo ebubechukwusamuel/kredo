@@ -364,6 +364,14 @@ export default async function InvoiceDetailPage(
             </div>
           )}
 
+          {/* Terms */}
+          {invoice.terms && (
+            <div style={{ fontSize: 13, color: "#666", marginBottom: 40, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#444", marginBottom: 8 }}>Terms &amp; Conditions</div>
+              <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.6" }}>{invoice.terms}</div>
+            </div>
+          )}
+
           {/* Footer */}
           <div style={{ textAlign: "center", fontSize: 11, color: "#333", paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.03)" }}>
             Powered by Kredo

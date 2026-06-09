@@ -23,12 +23,12 @@ export default async function InvoicePaymentPage(
     where: { invoiceId: id },
   })
 
-  const client = invoice.client || {
+  const clientData = invoice.client || {
     name: request?.clientName || "Client",
-    email: request?.clientEmail || "",
-    company: request?.company || "",
-    phone: request?.clientPhone || "",
-    address: "",
+    email: request?.clientEmail,
+    company: request?.company,
+    phone: request?.clientPhone,
+    address: null,
   }
 
   return (
@@ -45,13 +45,14 @@ export default async function InvoicePaymentPage(
           rate: i.rate,
           amount: i.amount,
         })),
+        terms: invoice.terms,
       }}
       client={{
-        name: client.name,
-        email: client.email,
-        company: client.company,
-        phone: client.phone,
-        address: client.address,
+        name: clientData.name,
+        email: clientData.email ?? "",
+        company: clientData.company ?? "",
+        phone: clientData.phone ?? "",
+        address: clientData.address ?? "",
       }}
       freelancer={{
         name: user.brandName || user.name || "Freelancer",
