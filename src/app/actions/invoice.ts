@@ -78,7 +78,7 @@ export async function createInvoice(formData: FormData) {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { brandName: true, name: true, brandColor: true, slug: true },
+    select: { brandName: true, name: true, brandColor: true, slug: true, email: true },
   })
 
   if (user && invoice.client?.email) {
@@ -99,7 +99,13 @@ export async function createInvoice(formData: FormData) {
     })
 
     try {
-      await sendEmail({ to: invoice.client.email, subject, html })
+      await sendEmail({
+        to: invoice.client.email,
+        subject,
+        html,
+        fromName: brandName,
+        replyTo: user.email,
+      })
     } catch (e) {
       console.error("[INVOICE EMAIL] Failed to send:", e)
     }
@@ -136,7 +142,7 @@ export async function updateInvoiceStatus(
     if (invoice?.client?.email) {
       const user = await prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { brandName: true, name: true, brandColor: true, slug: true },
+        select: { brandName: true, name: true, brandColor: true, slug: true, email: true },
       })
 
       if (user) {
@@ -157,7 +163,13 @@ export async function updateInvoiceStatus(
         })
 
         try {
-          await sendEmail({ to: invoice.client.email, subject, html })
+          await sendEmail({
+            to: invoice.client.email,
+            subject,
+            html,
+            fromName: brandName,
+            replyTo: user.email,
+          })
         } catch (e) {
           console.error("[INVOICE EMAIL] Failed to send:", e)
         }

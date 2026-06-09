@@ -7,21 +7,37 @@ interface EmailOptions {
   to: string
   subject: string
   html: string
+  fromName?: string
+  replyTo?: string
 }
 
-export async function sendEmail({ to, subject, html }: EmailOptions) {
+function getFromAddress(senderName?: string) {
+  const domain = process.env.EMAIL_DOMAIN || "kredo.app"
+  const fromEmail = `invoices@${domain}`
+  return senderName ? `${senderName} <${fromEmail}>` : (process.env.EMAIL_FROM || `Kredo <${fromEmail}>`)
+}
+
+export async function sendEmail({ to, subject, html, fromName, replyTo }: EmailOptions) {
   if (!process.env.RESEND_API_KEY) {
     console.log(`[EMAIL] To: ${to} | Subject: ${subject}`)
     console.log(`[EMAIL] HTML: ${html.slice(0, 200)}...`)
     return
   }
 
-  await resend.emails.send({
-    from: "Kredo <onboarding@resend.dev>",
+  const result = await resend.emails.send({
+    from: getFromAddress(fromName),
     to,
     subject,
     html,
+    ...(replyTo ? { reply_to: replyTo } : {}),
   })
+
+  if (result.error) {
+    console.error("[RESEND ERROR]", JSON.stringify(result.error, null, 2))
+    throw new Error(`Resend: ${result.error.message}`)
+  }
+
+  console.log(`[EMAIL SENT] To: ${to} | Subject: ${subject} | Id: ${result.data?.id}`)
 }
 
 function brandStyles(color: string) {

@@ -56,7 +56,13 @@ export async function POST(
         brandColor,
         brandName,
       })
-      await sendEmail({ to: req.clientEmail, subject, html })
+      await sendEmail({
+        to: req.clientEmail,
+        subject,
+        html,
+        fromName: brandName,
+        replyTo: invoice.user.email,
+      })
     }
 
     return NextResponse.json({ success: true })

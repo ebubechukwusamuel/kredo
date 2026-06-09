@@ -62,7 +62,7 @@ export async function submitProjectRequest(slug: string, formData: FormData) {
     projectName,
     requestLink: `${getBaseUrl()}/requests/${request.id}`,
   })
-  await sendEmail({ to: user.email, subject, html })
+  await sendEmail({ to: user.email, subject, html, fromName: clientName, replyTo: clientEmail })
 
   return { success: true }
 }
@@ -116,14 +116,17 @@ export async function submitDelivery(requestId: string, deliveryLink: string) {
     data: { deliveryLink, deliveredAt: new Date(), status: "DELIVERED" },
   })
 
+  const brandName = req.user.brandName || req.user.name || "Freelancer"
+  const brandColor = req.user.brandColor || "#e85d3a"
+
   const { subject, html } = deliveryEmail({
     clientName: req.clientName,
     projectName: req.projectName,
     deliveryLink,
-    brandColor: req.user.brandColor || "#e85d3a",
-    brandName: req.user.brandName || req.user.name || "Freelancer",
+    brandColor,
+    brandName,
   })
-  await sendEmail({ to: req.clientEmail, subject, html })
+  await sendEmail({ to: req.clientEmail, subject, html, fromName: brandName, replyTo: req.user.email })
 
   revalidatePath(`/requests/${requestId}`)
 }
