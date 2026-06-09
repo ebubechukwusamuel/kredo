@@ -45,14 +45,17 @@ export default async function InvoiceDetailPage(
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: {
+      name: true,
+      email: true,
+      phone: true,
+      company: true,
+      address: true,
       brandName: true,
       brandColor: true,
       logoUrl: true,
       bankName: true,
       bankAccountName: true,
       bankAccountNumber: true,
-      name: true,
-      email: true,
       slug: true,
     },
   })
@@ -60,7 +63,7 @@ export default async function InvoiceDetailPage(
   const invoice = await prisma.invoice.findFirst({
     where: { id, userId: session.user.id },
     include: {
-      client: { select: { id: true, name: true, email: true, company: true } },
+      client: { select: { id: true, name: true, email: true, company: true, phone: true, address: true } },
       items: true,
       payments: true,
     },
@@ -282,14 +285,19 @@ export default async function InvoiceDetailPage(
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 44 }}>
             <div style={{ width: "45%" }}>
               <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#444", marginBottom: 8 }}>From</div>
-              <div style={{ fontSize: 18, fontWeight: 600, color: "#fff", marginBottom: 4 }}>{brandName}</div>
-              <div style={{ fontSize: 14, color: "#777", lineHeight: "1.6" }}>{user?.email}</div>
+              <div style={{ fontSize: 18, fontWeight: 600, color: "#fff", marginBottom: 2 }}>{brandName}</div>
+              {user?.company && <div style={{ fontSize: 13, color: "#666", marginBottom: 2 }}>{user.company}</div>}
+              <div style={{ fontSize: 13, color: "#777", lineHeight: "1.5" }}>{user?.email}</div>
+              {user?.phone && <div style={{ fontSize: 13, color: "#777" }}>{user.phone}</div>}
+              {user?.address && <div style={{ fontSize: 13, color: "#777", lineHeight: "1.4", marginTop: 2 }}>{user.address}</div>}
             </div>
             <div style={{ width: "45%", textAlign: "right" }}>
               <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#444", marginBottom: 8 }}>Bill To</div>
-              <div style={{ fontSize: 18, fontWeight: 600, color: "#fff", marginBottom: 4 }}>{invoice.client.name}</div>
-              {invoice.client.company && <div style={{ fontSize: 14, color: "#777", lineHeight: "1.6" }}>{invoice.client.company}</div>}
-              <div style={{ fontSize: 14, color: "#777", lineHeight: "1.6" }}>{invoice.client.email}</div>
+              <div style={{ fontSize: 18, fontWeight: 600, color: "#fff", marginBottom: 2 }}>{invoice.client.name}</div>
+              {invoice.client.company && <div style={{ fontSize: 13, color: "#666", marginBottom: 2 }}>{invoice.client.company}</div>}
+              <div style={{ fontSize: 13, color: "#777", lineHeight: "1.5" }}>{invoice.client.email}</div>
+              {invoice.client.phone && <div style={{ fontSize: 13, color: "#777" }}>{invoice.client.phone}</div>}
+              {invoice.client.address && <div style={{ fontSize: 13, color: "#777", lineHeight: "1.4", marginTop: 2 }}>{invoice.client.address}</div>}
             </div>
           </div>
 

@@ -12,7 +12,10 @@ export default async function InvoicePaymentPage(
 
   const invoice = await prisma.invoice.findFirst({
     where: { id, userId: user.id },
-    include: { items: true },
+    include: {
+      items: true,
+      client: { select: { name: true, email: true, company: true, phone: true, address: true } },
+    },
   })
   if (!invoice) notFound()
 
@@ -20,7 +23,13 @@ export default async function InvoicePaymentPage(
     where: { invoiceId: id },
   })
 
-  const clientEmail = request?.clientEmail || ""
+  const client = invoice.client || {
+    name: request?.clientName || "Client",
+    email: request?.clientEmail || "",
+    company: request?.company || "",
+    phone: request?.clientPhone || "",
+    address: "",
+  }
 
   return (
     <ClientPaymentPage
@@ -37,6 +46,13 @@ export default async function InvoicePaymentPage(
           amount: i.amount,
         })),
       }}
+      client={{
+        name: client.name,
+        email: client.email,
+        company: client.company,
+        phone: client.phone,
+        address: client.address,
+      }}
       freelancer={{
         name: user.brandName || user.name || "Freelancer",
         brandColor: user.brandColor || "#e85d3a",
@@ -44,9 +60,12 @@ export default async function InvoicePaymentPage(
         bankName: user.bankName,
         bankAccountName: user.bankAccountName,
         bankAccountNumber: user.bankAccountNumber,
+        email: user.email || "",
+        phone: user.phone || "",
+        address: user.address || "",
+        company: user.company || "",
       }}
       invoiceId={id}
-      clientEmail={clientEmail}
     />
   )
 }

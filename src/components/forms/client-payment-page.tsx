@@ -17,6 +17,13 @@ interface ClientPaymentPageProps {
       amount: number
     }>
   }
+  client: {
+    name: string
+    email: string
+    company: string
+    phone: string
+    address: string
+  }
   freelancer: {
     name: string
     brandColor: string
@@ -24,9 +31,12 @@ interface ClientPaymentPageProps {
     bankName: string | null
     bankAccountName: string | null
     bankAccountNumber: string | null
+    email: string
+    phone: string
+    address: string
+    company: string
   }
   invoiceId: string
-  clientEmail: string
 }
 
 function formatCurrency(amount: number, currency: string) {
@@ -39,6 +49,7 @@ function formatCurrency(amount: number, currency: string) {
 export function ClientPaymentPage({
   invoice,
   freelancer,
+  client,
   invoiceId,
 }: ClientPaymentPageProps) {
   const [confirmed, setConfirmed] = useState(false)
@@ -100,7 +111,6 @@ export function ClientPaymentPage({
 
   return (
     <>
-      {/* Print stylesheet */}
       <style>{`
 @media print {
   @page { margin: 0; size: A4; }
@@ -188,6 +198,26 @@ export function ClientPaymentPage({
               <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", marginTop: "4px" }}>
                 {today}
               </div>
+            </div>
+          </div>
+
+          {/* Addresses */}
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "24px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ width: "45%" }}>
+              <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.3)", marginBottom: "8px" }}>From</div>
+              <div style={{ fontSize: "16px", fontWeight: 600, color: "#FAFAFA", marginBottom: "2px" }}>{freelancer.name}</div>
+              {freelancer.company && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "2px" }}>{freelancer.company}</div>}
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.5" }}>{freelancer.email}</div>
+              {freelancer.phone && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)" }}>{freelancer.phone}</div>}
+              {freelancer.address && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.4", marginTop: "2px" }}>{freelancer.address}</div>}
+            </div>
+            <div style={{ width: "45%", textAlign: "right" }}>
+              <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.3)", marginBottom: "8px" }}>Bill To</div>
+              <div style={{ fontSize: "16px", fontWeight: 600, color: "#FAFAFA", marginBottom: "2px" }}>{client.name}</div>
+              {client.company && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "2px" }}>{client.company}</div>}
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.5" }}>{client.email}</div>
+              {client.phone && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)" }}>{client.phone}</div>}
+              {client.address && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.4", marginTop: "2px" }}>{client.address}</div>}
             </div>
           </div>
 
