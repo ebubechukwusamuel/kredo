@@ -31,6 +31,8 @@ export default async function InvoicePaymentPage(
     address: null,
   }
 
+  const remainingBalance = invoice.total - (invoice.depositAmount || invoice.total * 0.5)
+
   return (
     <ClientPaymentPage
       invoice={{
@@ -38,6 +40,9 @@ export default async function InvoicePaymentPage(
         amount: invoice.amount,
         total: invoice.total,
         depositAmount: invoice.depositAmount || invoice.total * 0.5,
+        remainingBalance,
+        depositPaid: invoice.depositPaid,
+        status: invoice.status,
         currency: invoice.currency,
         items: invoice.items.map((i) => ({
           description: i.description,

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Clock, Copy, Printer } from "lucide-react"
+import { Clock, Copy, Printer, CheckCircle } from "lucide-react"
 
 const DEFAULT_TERMS = `1. Payment: 50% deposit is required to begin work. The remaining 50% is due upon delivery.
 2. Timeline: Project delivery timeline begins after deposit confirmation.
@@ -15,6 +15,9 @@ interface ClientPaymentPageProps {
     amount: number
     total: number
     depositAmount: number
+    remainingBalance: number
+    depositPaid: boolean
+    status: string
     currency: string
     items: Array<{
       description: string
@@ -59,7 +62,7 @@ export function ClientPaymentPage({
   client,
   invoiceId,
 }: ClientPaymentPageProps) {
-  const [confirmed, setConfirmed] = useState(false)
+  const [confirmed, setConfirmed] = useState<false | "deposit" | "final">(false)
   const [copied, setCopied] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
   const color = freelancer.brandColor
@@ -69,11 +72,17 @@ export function ClientPaymentPage({
     day: "numeric",
   })
 
-  async function handleConfirmDeposit() {
+  const isFullyPaid = invoice.status === "PAID"
+  const showDeposit = !invoice.depositPaid && !isFullyPaid
+  const showFinal = invoice.depositPaid && !isFullyPaid
+
+  async function handlePayment(type: "deposit" | "final") {
     const res = await fetch(`/api/invoice/${invoiceId}/confirm-deposit`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type }),
     })
-    if (res.ok) setConfirmed(true)
+    if (res.ok) setConfirmed(type)
     else alert("Something went wrong. Please try again.")
   }
 
@@ -95,6 +104,7 @@ export function ClientPaymentPage({
   }
 
   if (confirmed) {
+    const isFinal = confirmed === "final"
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#09090B] px-4">
         <div className="max-w-md text-center">
@@ -105,12 +115,12 @@ export function ClientPaymentPage({
             <Clock className="h-8 w-8" style={{ color }} />
           </div>
           <h1 className="font-heading text-2xl font-bold tracking-tight text-white">
-            Payment notification sent
+            {isFinal ? "Final payment notification sent" : "Payment notification sent"}
           </h1>
           <p className="mt-3 text-white/50">
-            We&apos;ve notified the freelancer about your deposit. They&apos;ll verify
-            and confirm it once it reflects in their bank account. You&apos;ll receive
-            a receipt email when confirmed.
+            {isFinal
+              ? "We&apos;ve notified the freelancer about your final payment. They&apos;ll verify and confirm it once it reflects in their bank account."
+              : "We&apos;ve notified the freelancer about your deposit. They&apos;ll verify and confirm it once it reflects in their bank account. You&apos;ll receive a receipt email when confirmed."}
           </p>
         </div>
       </div>
@@ -606,18 +616,44 @@ export function ClientPaymentPage({
                     <span className="kp-totals-label">Total</span>
                     <span className="kp-totals-value">{formatCurrency(invoice.total, invoice.currency)}</span>
                   </div>
-                  <div className="kp-totals-deposit">
-                    <span className="kp-deposit-label" style={{ color }}>Deposit (50%)</span>
-                    <span className="kp-deposit-value" style={{ color }}>{formatCurrency(invoice.depositAmount, invoice.currency)}</span>
-                  </div>
+                  {isFullyPaid ? (
+                    <div className="kp-totals-deposit">
+                      <span className="kp-deposit-label" style={{ color }}>Status</span>
+                      <span className="kp-deposit-value" style={{ color }}>Paid in full</span>
+                    </div>
+                  ) : showFinal ? (
+                    <div className="kp-totals-deposit">
+                      <span className="kp-deposit-label" style={{ color: "#22c55e" }}>Deposit paid</span>
+                      <span className="kp-deposit-value" style={{ color: "#22c55e" }}>{formatCurrency(invoice.depositAmount, invoice.currency)}</span>
+                    </div>
+                  ) : (
+                    <div className="kp-totals-deposit">
+                      <span className="kp-deposit-label" style={{ color }}>Deposit (50%)</span>
+                      <span className="kp-deposit-value" style={{ color }}>{formatCurrency(invoice.depositAmount, invoice.currency)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {freelancer.bankName && (
+            {isFullyPaid ? (
+              <div className="kp-bank-section" style={{ borderStyle: "solid", borderColor: "#22c55e40" }}>
+                <div style={{ textAlign: "center", padding: "8px 0" }}>
+                  <CheckCircle className="kp-check-icon" style={{ width: 32, height: 32, color: "#22c55e", margin: "0 auto 8px", display: "block" }} />
+                  <div className="kp-bank-title" style={{ color: "#22c55e", fontSize: 16 }}>Invoice Paid in Full</div>
+                  <div className="kp-bank-sub" style={{ marginBottom: 0 }}>All payments have been received. Thank you!</div>
+                </div>
+              </div>
+            ) : freelancer.bankName && (
               <div className="kp-bank-section">
-                <div className="kp-bank-title">Make your deposit</div>
-                <div className="kp-bank-sub">Transfer the deposit amount to the account below</div>
+                <div className="kp-bank-title">
+                  {showFinal ? "Pay remaining balance" : "Make your deposit"}
+                </div>
+                <div className="kp-bank-sub">
+                  {showFinal
+                    ? `Transfer the remaining ${formatCurrency(invoice.remainingBalance, invoice.currency)} to the account below`
+                    : "Transfer the deposit amount to the account below"}
+                </div>
                 <div className="kp-bank-grid">
                   <div className="kp-bank-card">
                     <div className="kp-bank-card-label">Bank</div>
@@ -632,17 +668,23 @@ export function ClientPaymentPage({
                     <div className="kp-bank-card-value mono">{freelancer.bankAccountNumber}</div>
                   </div>
                 </div>
+                {showFinal && (
+                  <div className="kp-totals-deposit" style={{ margin: "16px 0", padding: "12px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <span className="kp-deposit-label">Remaining Balance</span>
+                    <span className="kp-deposit-value" style={{ color }}>{formatCurrency(invoice.remainingBalance, invoice.currency)}</span>
+                  </div>
+                )}
                 <div className="print-hide kp-bank-actions">
                   <button onClick={handleCopyAccount} className="kp-btn-copy">
                     <Copy style={{ width: "14px", height: "14px" }} />
                     {copied ? "Copied!" : "Copy details"}
                   </button>
                   <button
-                    onClick={handleConfirmDeposit}
+                    onClick={() => handlePayment(showFinal ? "final" : "deposit")}
                     className="kp-btn-pay"
                     style={{ backgroundColor: color }}
                   >
-                    I&apos;ve made the deposit
+                    {showFinal ? "I&apos;ve made the final payment" : "I&apos;ve made the deposit"}
                   </button>
                 </div>
               </div>

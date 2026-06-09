@@ -3,11 +3,13 @@ import { prisma } from "@/lib/db"
 import { sendEmail, paymentPendingNotificationEmail, getBaseUrl } from "@/lib/email"
 
 export async function POST(
-  _req: Request,
+  req: Request,
   props: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await props.params
+    const body = await req.json().catch(() => ({}))
+    const type: "deposit" | "final" = body.type === "final" ? "final" : "deposit"
 
     const invoice = await prisma.invoice.findUnique({
       where: { id },
@@ -21,51 +23,58 @@ export async function POST(
     }
 
     const depositAmount = invoice.depositAmount || invoice.total * 0.5
+    const remainingBalance = invoice.total - depositAmount
+
+    const amount = type === "final" ? remainingBalance : depositAmount
+    const notes = type === "final"
+      ? "Final payment — pending verification"
+      : "Client deposit — pending verification"
 
     await prisma.payment.create({
       data: {
         invoiceId: id,
-        amount: depositAmount,
+        amount,
         method: "bank_transfer",
-        notes: "Client deposit — pending verification",
+        notes,
         status: "PENDING",
       },
     })
 
-    // Look up project request for project name context
-    const req = await prisma.projectRequest.findFirst({
+    const reqLookup = await prisma.projectRequest.findFirst({
       where: { invoiceId: id },
     })
 
-    // Always send notification to freelancer
     const brandName = invoice.user.brandName || invoice.user.name || "Freelancer"
-    const clientName = invoice.client?.name || req?.clientName || "A client"
-    const projectName = req?.projectName || (invoice.client?.name ? `Invoice #${invoice.number}` : "a project")
+    const clientName = invoice.client?.name || reqLookup?.clientName || "A client"
+    const projectName = reqLookup?.projectName || (invoice.client?.name ? `Invoice #${invoice.number}` : "a project")
 
     try {
+      const paymentLabel = type === "final" ? "final payment" : "deposit"
       const { subject, html } = paymentPendingNotificationEmail({
         clientName,
         projectName,
-        depositAmount: `${invoice.currency} ${depositAmount.toFixed(2)}`,
+        depositAmount: `${invoice.currency} ${amount.toFixed(2)}`,
         invoiceNumber: invoice.number,
         invoiceLink: `${getBaseUrl()}/invoices/${id}`,
         brandName,
       })
       await sendEmail({
         to: invoice.user.email,
-        subject,
+        subject: subject.replace("claims payment", `claims ${paymentLabel}`),
         html,
         fromName: brandName,
         replyTo: invoice.user.email,
       })
-      console.log(`[PENDING PAYMENT] Notification sent to ${invoice.user.email}`)
+      console.log(`[PENDING ${type.toUpperCase()}] Notification sent to ${invoice.user.email}`)
     } catch (e) {
-      console.error("[PENDING PAYMENT EMAIL] Failed to send to freelancer:", e)
+      console.error(`[PENDING ${type.toUpperCase()} EMAIL] Failed:`, e)
     }
 
     return NextResponse.json({
       success: true,
-      message: "Payment notification sent to freelancer for verification.",
+      message: type === "final"
+        ? "Final payment notification sent to freelancer for verification."
+        : "Payment notification sent to freelancer for verification.",
     })
   } catch (e) {
     console.error("[CONFIRM DEPOSIT ERROR]", e)
