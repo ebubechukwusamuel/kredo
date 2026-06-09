@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
+import { sendEmail, invoiceEmail } from "@/lib/email"
 
 function generateInvoiceNumber() {
   const year = new Date().getFullYear()
@@ -63,6 +64,9 @@ export async function createInvoice(formData: FormData) {
         create: items,
       },
     },
+    include: {
+      client: { select: { name: true, email: true } },
+    },
   })
 
   if (requestId) {
@@ -70,6 +74,35 @@ export async function createInvoice(formData: FormData) {
       where: { id: requestId },
       data: { invoiceId: invoice.id, status: "INVOICE_SENT" },
     })
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { brandName: true, name: true, brandColor: true, slug: true },
+  })
+
+  if (user && invoice.client?.email) {
+    const brandName = user.brandName || user.name || "Freelancer"
+    const brandColor = user.brandColor || "#e85d3a"
+    const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://kredo-gray.vercel.app"
+    const paymentLink = `${siteUrl}/${user.slug || "freelancer"}/invoice/${invoice.id}`
+    const depositAmount = invoice.depositAmount || invoice.total * 0.5
+
+    const { subject, html } = invoiceEmail({
+      clientName: invoice.client.name,
+      invoiceNumber: invoice.number,
+      invoiceTotal: `${invoice.currency} ${invoice.total.toFixed(2)}`,
+      depositAmount: `${invoice.currency} ${depositAmount.toFixed(2)}`,
+      paymentLink,
+      brandColor,
+      brandName,
+    })
+
+    try {
+      await sendEmail({ to: invoice.client.email, subject, html })
+    } catch (e) {
+      console.error("[INVOICE EMAIL] Failed to send:", e)
+    }
   }
 
   revalidatePath("/invoices")
@@ -91,6 +124,46 @@ export async function updateInvoiceStatus(
     where: { id, userId: session.user.id },
     data,
   })
+
+  if (status === "SENT") {
+    const invoice = await prisma.invoice.findFirst({
+      where: { id, userId: session.user.id },
+      include: {
+        client: { select: { name: true, email: true } },
+      },
+    })
+
+    if (invoice?.client?.email) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { brandName: true, name: true, brandColor: true, slug: true },
+      })
+
+      if (user) {
+        const brandName = user.brandName || user.name || "Freelancer"
+        const brandColor = user.brandColor || "#e85d3a"
+        const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://kredo-gray.vercel.app"
+        const paymentLink = `${siteUrl}/${user.slug || "freelancer"}/invoice/${invoice.id}`
+        const depositAmount = invoice.depositAmount || invoice.total * 0.5
+
+        const { subject, html } = invoiceEmail({
+          clientName: invoice.client.name,
+          invoiceNumber: invoice.number,
+          invoiceTotal: `${invoice.currency} ${invoice.total.toFixed(2)}`,
+          depositAmount: `${invoice.currency} ${depositAmount.toFixed(2)}`,
+          paymentLink,
+          brandColor,
+          brandName,
+        })
+
+        try {
+          await sendEmail({ to: invoice.client.email, subject, html })
+        } catch (e) {
+          console.error("[INVOICE EMAIL] Failed to send:", e)
+        }
+      }
+    }
+  }
 
   revalidatePath("/invoices")
   revalidatePath(`/invoices/${id}`)
