@@ -119,35 +119,320 @@ export function ClientPaymentPage({
   return (
     <>
       <style>{`
-        @media print {
-          @page { margin: 0; size: A4; }
-          html, body { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .print-hide { display: none !important; }
-          .print-root {
-            background: #000 !important;
-            min-height: 100vh !important;
-            padding: 0 !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          .print-invoice {
-            border: 1px solid rgba(255,255,255,0.08) !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
+        .kp-wrap {
+          background: #09090B;
+          color: #FAFAFA;
+          min-height: 100vh;
+          font-family: system-ui, -apple-system, sans-serif;
         }
+        .kp-container {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 40px 24px;
+        }
+        .kp-print-btn-wrap {
+          text-align: right;
+          margin-bottom: 16px;
+        }
+        .kp-print-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.05);
+          color: #FAFAFA;
+          cursor: pointer;
+        }
+        .kp-card {
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 16px;
+          overflow: hidden;
+        }
+        .kp-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          padding: 32px 32px 24px;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .kp-header-left {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .kp-header-name {
+          font-size: 22px;
+          font-weight: 800;
+          margin-bottom: 4px;
+          letter-spacing: -0.03em;
+        }
+        .kp-header-sub {
+          font-size: 12px;
+          color: rgba(255,255,255,0.35);
+          font-weight: 500;
+        }
+        .kp-header-right {
+          text-align: right;
+          flex-shrink: 0;
+        }
+        .kp-header-label {
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: rgba(255,255,255,0.35);
+          margin-bottom: 4px;
+        }
+        .kp-header-number {
+          font-size: 22px;
+          font-weight: 700;
+          color: #FAFAFA;
+          letter-spacing: -0.02em;
+        }
+        .kp-header-date {
+          font-size: 13px;
+          color: rgba(255,255,255,0.4);
+          margin-top: 4px;
+        }
+        .kp-addresses {
+          display: flex;
+          justify-content: space-between;
+          padding: 24px 32px;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          gap: 24px;
+        }
+        .kp-address-block {
+          width: 45%;
+        }
+        .kp-address-block:last-child {
+          text-align: right;
+        }
+        .kp-address-label {
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: rgba(255,255,255,0.3);
+          margin-bottom: 8px;
+        }
+        .kp-address-name {
+          font-size: 16px;
+          font-weight: 600;
+          color: #FAFAFA;
+          margin-bottom: 2px;
+        }
+        .kp-address-line {
+          font-size: 12px;
+          color: rgba(255,255,255,0.45);
+          line-height: 1.5;
+        }
+        .kp-body {
+          padding: 24px 32px;
+        }
+        .kp-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 14px;
+        }
+        .kp-table th {
+          padding: 10px 8px 10px 0;
+          text-align: left;
+          color: rgba(255,255,255,0.35);
+          font-weight: 600;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .kp-table th:nth-child(n+2) {
+          text-align: right;
+          padding: 10px 8px;
+        }
+        .kp-table th:last-child {
+          padding: 10px 0 10px 8px;
+        }
+        .kp-table td {
+          padding: 14px 8px 14px 0;
+          color: #FAFAFA;
+          font-weight: 500;
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .kp-table td:nth-child(n+2) {
+          text-align: right;
+          color: rgba(255,255,255,0.6);
+          font-weight: 400;
+          padding: 14px 8px;
+        }
+        .kp-table td:last-child {
+          text-align: right;
+          color: #FAFAFA;
+          font-weight: 600;
+          padding: 14px 0 14px 8px;
+        }
+        .kp-totals-wrap {
+          margin-top: 20px;
+          border-top: 1px solid rgba(255,255,255,0.06);
+          padding-top: 16px;
+          display: flex;
+          justify-content: flex-end;
+        }
+        .kp-totals {
+          min-width: 200px;
+        }
+        .kp-totals-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 4px 0;
+        }
+        .kp-totals-label {
+          font-size: 13px;
+          color: rgba(255,255,255,0.4);
+        }
+        .kp-totals-value {
+          font-size: 14px;
+          color: #FAFAFA;
+          font-weight: 600;
+        }
+        .kp-totals-deposit {
+          display: flex;
+          justify-content: space-between;
+          padding: 8px 0 0;
+          margin-top: 4px;
+          border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .kp-deposit-label {
+          font-size: 14px;
+          font-weight: 700;
+        }
+        .kp-deposit-value {
+          font-size: 20px;
+          font-weight: 800;
+        }
+        .kp-bank-section {
+          margin: 0 32px 32px;
+          border-radius: 12px;
+          border: 1px dashed rgba(255,255,255,0.12);
+          background: rgba(255,255,255,0.02);
+          padding: 24px;
+        }
+        .kp-bank-title {
+          font-size: 13px;
+          font-weight: 700;
+          color: #FAFAFA;
+          margin-bottom: 4px;
+        }
+        .kp-bank-sub {
+          font-size: 12px;
+          color: rgba(255,255,255,0.4);
+          margin-bottom: 16px;
+        }
+        .kp-bank-grid {
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .kp-bank-card {
+          flex: 1;
+          min-width: 140px;
+          padding: 12px 14px;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+        .kp-bank-card-label {
+          font-size: 10px;
+          color: rgba(255,255,255,0.3);
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-bottom: 4px;
+        }
+        .kp-bank-card-value {
+          font-size: 13px;
+          font-weight: 600;
+          color: #FAFAFA;
+        }
+        .kp-bank-card-value.mono {
+          font-family: monospace;
+        }
+        .kp-bank-actions {
+          display: flex;
+          gap: 8px;
+          margin-top: 16px;
+        }
+        .kp-btn-copy {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 12px 16px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.03);
+          color: #FAFAFA;
+          cursor: pointer;
+          flex: 1;
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .kp-btn-pay {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 12px 24px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 700;
+          border: none;
+          color: #FAFAFA;
+          cursor: pointer;
+          flex: 1;
+          touch-action: manipulation;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .kp-terms {
+          margin: 0 32px 32px;
+          padding: 20px 24px;
+          border-radius: 12px;
+          background: rgba(255,255,255,0.015);
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+        .kp-terms-label {
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: rgba(255,255,255,0.3);
+          margin-bottom: 10px;
+        }
+        .kp-terms-text {
+          font-size: 12px;
+          color: rgba(255,255,255,0.45);
+          line-height: 1.6;
+          white-space: pre-wrap;
+        }
+        .kp-footer {
+          margin-top: 24px;
+          text-align: center;
+          font-size: 12px;
+          color: rgba(255,255,255,0.2);
+          padding: 16px 0;
+        }
+
         @media (max-width: 640px) {
-          .kp-root {
-            padding: 16px 8px !important;
-          }
-          .kp-inner {
-            padding: 12px !important;
+          .kp-container {
+            padding: 12px 8px !important;
           }
           .kp-header {
             flex-direction: column !important;
-            gap: 16px !important;
+            gap: 12px !important;
             padding: 20px 16px 16px !important;
           }
           .kp-header-right {
@@ -156,28 +441,37 @@ export function ClientPaymentPage({
           }
           .kp-addresses {
             flex-direction: column !important;
-            gap: 20px !important;
             padding: 20px 16px !important;
           }
           .kp-address-block {
             width: 100% !important;
+          }
+          .kp-address-block:last-child {
             text-align: left !important;
           }
           .kp-body {
             padding: 16px !important;
           }
           .kp-table {
-            font-size: 13px !important;
+            font-size: 12px !important;
           }
-          .kp-table th, .kp-table td {
+          .kp-table th,
+          .kp-table td {
             padding: 8px 4px !important;
           }
+          .kp-table th:last-child,
+          .kp-table td:last-child {
+            padding: 8px 0 8px 4px !important;
+          }
           .kp-totals-wrap {
-            justify-content: flex-start !important;
+            justify-content: stretch !important;
           }
           .kp-totals {
             min-width: unset !important;
             width: 100% !important;
+          }
+          .kp-deposit-value {
+            font-size: 18px !important;
           }
           .kp-bank-section {
             margin: 0 12px 20px !important;
@@ -192,289 +486,178 @@ export function ClientPaymentPage({
           }
           .kp-bank-actions {
             flex-direction: column !important;
-            gap: 8px !important;
+          }
+          .kp-btn-copy,
+          .kp-btn-pay {
+            padding: 14px !important;
+            font-size: 15px !important;
           }
           .kp-terms {
             margin: 0 12px 20px !important;
             padding: 16px !important;
           }
         }
+
+        @media (max-width: 380px) {
+          .kp-container {
+            padding: 8px 4px !important;
+          }
+          .kp-header {
+            padding: 16px 12px 12px !important;
+          }
+          .kp-body {
+            padding: 12px !important;
+          }
+          .kp-table {
+            font-size: 11px !important;
+          }
+          .kp-table th,
+          .kp-table td {
+            padding: 6px 3px !important;
+          }
+          .kp-header-number {
+            font-size: 18px !important;
+          }
+        }
+
+        @media print {
+          @page { margin: 0; size: A4; }
+          html, body { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .print-hide { display: none !important; }
+          .kp-wrap { background: #000 !important; min-height: 100vh !important; padding: 0 !important; }
+          .kp-container { padding: 0 !important; max-width: none !important; }
+          .kp-card { border-radius: 0 !important; border: none !important; box-shadow: none !important; }
+        }
       `}</style>
 
-      <div ref={printRef} className="print-root kp-root" style={{ backgroundColor: "#09090B", color: "#FAFAFA", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-        <div className="kp-inner" style={{ maxWidth: "800px", margin: "0 auto", padding: "40px 24px" }}>
-          <div className="print-hide" style={{ textAlign: "right", marginBottom: "16px" }}>
-            <button
-              onClick={handlePrint}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                padding: "8px 16px",
-                borderRadius: "8px",
-                fontSize: "13px",
-                fontWeight: 600,
-                border: "1px solid rgba(255,255,255,0.1)",
-                background: "rgba(255,255,255,0.05)",
-                color: "#FAFAFA",
-                cursor: "pointer",
-              }}
-            >
+      <div ref={printRef} className="kp-wrap">
+        <div className="kp-container">
+          <div className="print-hide kp-print-btn-wrap">
+            <button onClick={handlePrint} className="kp-print-btn">
               <Printer style={{ width: "14px", height: "14px" }} />
               Print / PDF
             </button>
           </div>
 
-          <div className="print-invoice" style={{
-            background: "rgba(255,255,255,0.02)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "16px",
-            overflow: "hidden",
-          }}>
-          <div className="kp-header" style={{
-            padding: "32px 32px 24px",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-          }}>
-            <div>
-              {freelancer.logoUrl ? (
-                <img src={freelancer.logoUrl} alt="" style={{ height: "40px", marginBottom: "12px", display: "block" }} />
-              ) : (
-                <div style={{ fontSize: "22px", fontWeight: 800, color, marginBottom: "12px", letterSpacing: "-0.03em" }}>
-                  {freelancer.name}
-                </div>
-              )}
-              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>
-                {freelancer.name}
+          <div className="kp-card">
+            <div className="kp-header">
+              <div className="kp-header-left">
+                {freelancer.logoUrl ? (
+                  <img src={freelancer.logoUrl} alt="" style={{ height: "40px", marginBottom: "12px", display: "block" }} />
+                ) : (
+                  <div className="kp-header-name" style={{ color }}>
+                    {freelancer.name}
+                  </div>
+                )}
+                <div className="kp-header-sub">{freelancer.name}</div>
+              </div>
+              <div className="kp-header-right">
+                <div className="kp-header-label">Invoice</div>
+                <div className="kp-header-number">{invoice.number}</div>
+                <div className="kp-header-date">{today}</div>
               </div>
             </div>
-            <div className="kp-header-right" style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "4px" }}>
-                Invoice
-              </div>
-              <div style={{ fontSize: "22px", fontWeight: 700, color: "#FAFAFA", letterSpacing: "-0.02em" }}>
-                {invoice.number}
-              </div>
-              <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", marginTop: "4px" }}>
-                {today}
-              </div>
-            </div>
-          </div>
 
-          <div className="kp-addresses" style={{ display: "flex", justifyContent: "space-between", padding: "24px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            <div className="kp-address-block" style={{ width: "45%" }}>
-              <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.3)", marginBottom: "8px" }}>From</div>
-              <div style={{ fontSize: "16px", fontWeight: 600, color: "#FAFAFA", marginBottom: "2px" }}>{freelancer.name}</div>
-              {freelancer.company && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "2px" }}>{freelancer.company}</div>}
-              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.5" }}>{freelancer.email}</div>
-              {freelancer.phone && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)" }}>{freelancer.phone}</div>}
-              {freelancer.address && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.4", marginTop: "2px" }}>{freelancer.address}</div>}
+            <div className="kp-addresses">
+              <div className="kp-address-block">
+                <div className="kp-address-label">From</div>
+                <div className="kp-address-name">{freelancer.name}</div>
+                {freelancer.company && <div className="kp-address-line" style={{ color: "rgba(255,255,255,0.4)" }}>{freelancer.company}</div>}
+                <div className="kp-address-line">{freelancer.email}</div>
+                {freelancer.phone && <div className="kp-address-line">{freelancer.phone}</div>}
+                {freelancer.address && <div className="kp-address-line" style={{ marginTop: "2px" }}>{freelancer.address}</div>}
+              </div>
+              <div className="kp-address-block">
+                <div className="kp-address-label">Bill To</div>
+                <div className="kp-address-name">{client.name}</div>
+                {client.company && <div className="kp-address-line" style={{ color: "rgba(255,255,255,0.4)" }}>{client.company}</div>}
+                <div className="kp-address-line">{client.email}</div>
+                {client.phone && <div className="kp-address-line">{client.phone}</div>}
+                {client.address && <div className="kp-address-line" style={{ marginTop: "2px" }}>{client.address}</div>}
+              </div>
             </div>
-            <div className="kp-address-block" style={{ width: "45%", textAlign: "right" }}>
-              <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.3)", marginBottom: "8px" }}>Bill To</div>
-              <div style={{ fontSize: "16px", fontWeight: 600, color: "#FAFAFA", marginBottom: "2px" }}>{client.name}</div>
-              {client.company && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "2px" }}>{client.company}</div>}
-              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.5" }}>{client.email}</div>
-              {client.phone && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)" }}>{client.phone}</div>}
-              {client.address && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.4", marginTop: "2px" }}>{client.address}</div>}
-            </div>
-          </div>
 
-          <div className="kp-body" style={{ padding: "24px 32px" }}>
-            <table className="kp-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                  <th style={{ padding: "10px 8px 10px 0", textAlign: "left", color: "rgba(255,255,255,0.35)", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    Description
-                  </th>
-                  <th style={{ padding: "10px 8px", textAlign: "right", color: "rgba(255,255,255,0.35)", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    Qty
-                  </th>
-                  <th style={{ padding: "10px 8px", textAlign: "right", color: "rgba(255,255,255,0.35)", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    Rate
-                  </th>
-                  <th style={{ padding: "10px 0 10px 8px", textAlign: "right", color: "rgba(255,255,255,0.35)", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoice.items.map((item, i) => (
-                  <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                    <td style={{ padding: "14px 8px 14px 0", color: "#FAFAFA", fontWeight: 500 }}>
-                      {item.description}
-                    </td>
-                    <td style={{ padding: "14px 8px", textAlign: "right", color: "rgba(255,255,255,0.6)" }}>
-                      {item.quantity}
-                    </td>
-                    <td style={{ padding: "14px 8px", textAlign: "right", color: "rgba(255,255,255,0.6)" }}>
-                      {formatCurrency(item.rate, invoice.currency)}
-                    </td>
-                    <td style={{ padding: "14px 0 14px 8px", textAlign: "right", color: "#FAFAFA", fontWeight: 600 }}>
-                      {formatCurrency(item.amount, invoice.currency)}
-                    </td>
+            <div className="kp-body">
+              <table className="kp-table">
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Amount</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {invoice.items.map((item, i) => (
+                    <tr key={i}>
+                      <td>{item.description}</td>
+                      <td>{item.quantity}</td>
+                      <td>{formatCurrency(item.rate, invoice.currency)}</td>
+                      <td>{formatCurrency(item.amount, invoice.currency)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-            <div style={{ marginTop: "20px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px" }}>
-              <div className="kp-totals-wrap" style={{ display: "flex", justifyContent: "flex-end" }}>
-                <div className="kp-totals" style={{ minWidth: "200px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
-                    <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>Total</span>
-                    <span style={{ fontSize: "14px", color: "#FAFAFA", fontWeight: 600 }}>
-                      {formatCurrency(invoice.total, invoice.currency)}
-                    </span>
+              <div className="kp-totals-wrap">
+                <div className="kp-totals">
+                  <div className="kp-totals-row">
+                    <span className="kp-totals-label">Total</span>
+                    <span className="kp-totals-value">{formatCurrency(invoice.total, invoice.currency)}</span>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0 0", marginTop: "4px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                    <span style={{ fontSize: "14px", fontWeight: 700, color }}>Deposit (50%)</span>
-                    <span style={{ fontSize: "20px", fontWeight: 800, color }}>
-                      {formatCurrency(invoice.depositAmount, invoice.currency)}
-                    </span>
+                  <div className="kp-totals-deposit">
+                    <span className="kp-deposit-label" style={{ color }}>Deposit (50%)</span>
+                    <span className="kp-deposit-value" style={{ color }}>{formatCurrency(invoice.depositAmount, invoice.currency)}</span>
                   </div>
                 </div>
               </div>
             </div>
+
+            {freelancer.bankName && (
+              <div className="kp-bank-section">
+                <div className="kp-bank-title">Make your deposit</div>
+                <div className="kp-bank-sub">Transfer the deposit amount to the account below</div>
+                <div className="kp-bank-grid">
+                  <div className="kp-bank-card">
+                    <div className="kp-bank-card-label">Bank</div>
+                    <div className="kp-bank-card-value">{freelancer.bankName}</div>
+                  </div>
+                  <div className="kp-bank-card">
+                    <div className="kp-bank-card-label">Account Name</div>
+                    <div className="kp-bank-card-value">{freelancer.bankAccountName}</div>
+                  </div>
+                  <div className="kp-bank-card">
+                    <div className="kp-bank-card-label">Account Number</div>
+                    <div className="kp-bank-card-value mono">{freelancer.bankAccountNumber}</div>
+                  </div>
+                </div>
+                <div className="print-hide kp-bank-actions">
+                  <button onClick={handleCopyAccount} className="kp-btn-copy">
+                    <Copy style={{ width: "14px", height: "14px" }} />
+                    {copied ? "Copied!" : "Copy details"}
+                  </button>
+                  <button
+                    onClick={handleConfirmDeposit}
+                    className="kp-btn-pay"
+                    style={{ backgroundColor: color }}
+                  >
+                    I&apos;ve made the deposit
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-
-          {freelancer.bankName && (
-            <div className="kp-bank-section" style={{
-              margin: "0 32px 32px",
-              borderRadius: "12px",
-              border: "1px dashed rgba(255,255,255,0.12)",
-              background: "rgba(255,255,255,0.02)",
-              padding: "24px",
-            }}>
-              <div style={{ fontSize: "13px", fontWeight: 700, color: "#FAFAFA", marginBottom: "4px" }}>
-                Make your deposit
-              </div>
-              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "16px" }}>
-                Transfer the deposit amount to the account below
-              </div>
-              <div className="kp-bank-grid" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                <div className="kp-bank-card" style={{
-                  flex: 1,
-                  minWidth: "140px",
-                  padding: "12px 14px",
-                  borderRadius: "8px",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.05)",
-                }}>
-                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
-                    Bank
-                  </div>
-                  <div style={{ fontSize: "13px", fontWeight: 600, color: "#FAFAFA" }}>
-                    {freelancer.bankName}
-                  </div>
-                </div>
-                <div className="kp-bank-card" style={{
-                  flex: 1,
-                  minWidth: "140px",
-                  padding: "12px 14px",
-                  borderRadius: "8px",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.05)",
-                }}>
-                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
-                    Account Name
-                  </div>
-                  <div style={{ fontSize: "13px", fontWeight: 600, color: "#FAFAFA" }}>
-                    {freelancer.bankAccountName}
-                  </div>
-                </div>
-                <div className="kp-bank-card" style={{
-                  flex: 1,
-                  minWidth: "140px",
-                  padding: "12px 14px",
-                  borderRadius: "8px",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.05)",
-                }}>
-                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
-                    Account Number
-                  </div>
-                  <div style={{ fontSize: "13px", fontWeight: 600, color: "#FAFAFA", fontFamily: "monospace" }}>
-                    {freelancer.bankAccountNumber}
-                  </div>
-                </div>
-              </div>
-              <div className="print-hide kp-bank-actions" style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
-                <button
-                  onClick={handleCopyAccount}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                    padding: "12px 16px",
-                    borderRadius: "8px",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    background: "rgba(255,255,255,0.03)",
-                    color: "#FAFAFA",
-                    cursor: "pointer",
-                    flex: 1,
-                  }}
-                >
-                  <Copy style={{ width: "14px", height: "14px" }} />
-                  {copied ? "Copied!" : "Copy details"}
-                </button>
-                <button
-                  onClick={handleConfirmDeposit}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "12px 24px",
-                    borderRadius: "8px",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    border: "none",
-                    backgroundColor: color,
-                    color: "#FAFAFA",
-                    cursor: "pointer",
-                    flex: 1,
-                  }}
-                >
-                  I&apos;ve made the deposit
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
 
           {(invoice.terms || DEFAULT_TERMS) && (
-            <div className="kp-terms" style={{
-              margin: "0 32px 32px",
-              padding: "20px 24px",
-              borderRadius: "12px",
-              background: "rgba(255,255,255,0.015)",
-              border: "1px solid rgba(255,255,255,0.05)",
-            }}>
-              <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.3)", marginBottom: "10px" }}>
-                Terms &amp; Conditions
-              </div>
-              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
-                {invoice.terms || DEFAULT_TERMS}
-              </div>
+            <div className="kp-terms">
+              <div className="kp-terms-label">Terms &amp; Conditions</div>
+              <div className="kp-terms-text">{invoice.terms || DEFAULT_TERMS}</div>
             </div>
           )}
 
-        <div style={{
-          marginTop: "24px",
-          textAlign: "center",
-          fontSize: "12px",
-          color: "rgba(255,255,255,0.2)",
-          padding: "16px 0",
-        }}>
-          Powered by Kredo
+          <div className="kp-footer">Powered by Kredo</div>
         </div>
       </div>
-    </div>
     </>
   )
 }
