@@ -119,33 +119,90 @@ export function ClientPaymentPage({
   return (
     <>
       <style>{`
-@media print {
-  @page { margin: 0; size: A4; }
-  html, body { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .print-hide { display: none !important; }
-  .print-root {
-    background: #000 !important;
-    min-height: 100vh !important;
-    padding: 0 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .print-invoice {
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .print-payment-box {
-    border: 1px solid rgba(255,255,255,0.12) !important;
-  }
-}
-`}</style>
+        @media print {
+          @page { margin: 0; size: A4; }
+          html, body { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .print-hide { display: none !important; }
+          .print-root {
+            background: #000 !important;
+            min-height: 100vh !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .print-invoice {
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        }
+        @media (max-width: 640px) {
+          .kp-root {
+            padding: 16px 8px !important;
+          }
+          .kp-inner {
+            padding: 12px !important;
+          }
+          .kp-header {
+            flex-direction: column !important;
+            gap: 16px !important;
+            padding: 20px 16px 16px !important;
+          }
+          .kp-header-right {
+            text-align: left !important;
+            width: 100% !important;
+          }
+          .kp-addresses {
+            flex-direction: column !important;
+            gap: 20px !important;
+            padding: 20px 16px !important;
+          }
+          .kp-address-block {
+            width: 100% !important;
+            text-align: left !important;
+          }
+          .kp-body {
+            padding: 16px !important;
+          }
+          .kp-table {
+            font-size: 13px !important;
+          }
+          .kp-table th, .kp-table td {
+            padding: 8px 4px !important;
+          }
+          .kp-totals-wrap {
+            justify-content: flex-start !important;
+          }
+          .kp-totals {
+            min-width: unset !important;
+            width: 100% !important;
+          }
+          .kp-bank-section {
+            margin: 0 12px 20px !important;
+            padding: 16px !important;
+          }
+          .kp-bank-grid {
+            flex-direction: column !important;
+          }
+          .kp-bank-card {
+            min-width: unset !important;
+            width: 100% !important;
+          }
+          .kp-bank-actions {
+            flex-direction: column !important;
+            gap: 8px !important;
+          }
+          .kp-terms {
+            margin: 0 12px 20px !important;
+            padding: 16px !important;
+          }
+        }
+      `}</style>
 
-      <div ref={printRef} className="print-root" style={{ backgroundColor: "#09090B", color: "#FAFAFA", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto", padding: "40px 24px" }}>
-          {/* Print Button */}
+      <div ref={printRef} className="print-root kp-root" style={{ backgroundColor: "#09090B", color: "#FAFAFA", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+        <div className="kp-inner" style={{ maxWidth: "800px", margin: "0 auto", padding: "40px 24px" }}>
           <div className="print-hide" style={{ textAlign: "right", marginBottom: "16px" }}>
             <button
               onClick={handlePrint}
@@ -168,15 +225,13 @@ export function ClientPaymentPage({
             </button>
           </div>
 
-          {/* Invoice Document */}
           <div className="print-invoice" style={{
             background: "rgba(255,255,255,0.02)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: "16px",
             overflow: "hidden",
           }}>
-          {/* Invoice Header */}
-          <div style={{
+          <div className="kp-header" style={{
             padding: "32px 32px 24px",
             borderBottom: "1px solid rgba(255,255,255,0.06)",
             display: "flex",
@@ -195,7 +250,7 @@ export function ClientPaymentPage({
                 {freelancer.name}
               </div>
             </div>
-            <div style={{ textAlign: "right" }}>
+            <div className="kp-header-right" style={{ textAlign: "right" }}>
               <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "4px" }}>
                 Invoice
               </div>
@@ -208,9 +263,8 @@ export function ClientPaymentPage({
             </div>
           </div>
 
-          {/* Addresses */}
-          <div style={{ display: "flex", justifyContent: "space-between", padding: "24px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            <div style={{ width: "45%" }}>
+          <div className="kp-addresses" style={{ display: "flex", justifyContent: "space-between", padding: "24px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="kp-address-block" style={{ width: "45%" }}>
               <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.3)", marginBottom: "8px" }}>From</div>
               <div style={{ fontSize: "16px", fontWeight: 600, color: "#FAFAFA", marginBottom: "2px" }}>{freelancer.name}</div>
               {freelancer.company && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "2px" }}>{freelancer.company}</div>}
@@ -218,7 +272,7 @@ export function ClientPaymentPage({
               {freelancer.phone && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)" }}>{freelancer.phone}</div>}
               {freelancer.address && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.4", marginTop: "2px" }}>{freelancer.address}</div>}
             </div>
-            <div style={{ width: "45%", textAlign: "right" }}>
+            <div className="kp-address-block" style={{ width: "45%", textAlign: "right" }}>
               <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.3)", marginBottom: "8px" }}>Bill To</div>
               <div style={{ fontSize: "16px", fontWeight: 600, color: "#FAFAFA", marginBottom: "2px" }}>{client.name}</div>
               {client.company && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "2px" }}>{client.company}</div>}
@@ -228,10 +282,8 @@ export function ClientPaymentPage({
             </div>
           </div>
 
-          {/* Invoice Body */}
-          <div style={{ padding: "24px 32px" }}>
-            {/* Items Table */}
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+          <div className="kp-body" style={{ padding: "24px 32px" }}>
+            <table className="kp-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                   <th style={{ padding: "10px 8px 10px 0", textAlign: "left", color: "rgba(255,255,255,0.35)", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -268,10 +320,9 @@ export function ClientPaymentPage({
               </tbody>
             </table>
 
-            {/* Totals */}
             <div style={{ marginTop: "20px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px" }}>
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "48px" }}>
-                <div style={{ minWidth: "200px" }}>
+              <div className="kp-totals-wrap" style={{ display: "flex", justifyContent: "flex-end" }}>
+                <div className="kp-totals" style={{ minWidth: "200px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
                     <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>Total</span>
                     <span style={{ fontSize: "14px", color: "#FAFAFA", fontWeight: 600 }}>
@@ -289,9 +340,8 @@ export function ClientPaymentPage({
             </div>
           </div>
 
-          {/* Bank Details */}
           {freelancer.bankName && (
-            <div style={{
+            <div className="kp-bank-section" style={{
               margin: "0 32px 32px",
               borderRadius: "12px",
               border: "1px dashed rgba(255,255,255,0.12)",
@@ -304,8 +354,8 @@ export function ClientPaymentPage({
               <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "16px" }}>
                 Transfer the deposit amount to the account below
               </div>
-              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                <div style={{
+              <div className="kp-bank-grid" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                <div className="kp-bank-card" style={{
                   flex: 1,
                   minWidth: "140px",
                   padding: "12px 14px",
@@ -320,7 +370,7 @@ export function ClientPaymentPage({
                     {freelancer.bankName}
                   </div>
                 </div>
-                <div style={{
+                <div className="kp-bank-card" style={{
                   flex: 1,
                   minWidth: "140px",
                   padding: "12px 14px",
@@ -335,7 +385,7 @@ export function ClientPaymentPage({
                     {freelancer.bankAccountName}
                   </div>
                 </div>
-                <div style={{
+                <div className="kp-bank-card" style={{
                   flex: 1,
                   minWidth: "140px",
                   padding: "12px 14px",
@@ -351,24 +401,26 @@ export function ClientPaymentPage({
                   </div>
                 </div>
               </div>
-              <div className="print-hide" style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
+              <div className="print-hide kp-bank-actions" style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
                 <button
                   onClick={handleCopyAccount}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
+                    justifyContent: "center",
                     gap: "6px",
-                    padding: "8px 16px",
+                    padding: "12px 16px",
                     borderRadius: "8px",
-                    fontSize: "12px",
+                    fontSize: "13px",
                     fontWeight: 600,
                     border: "1px solid rgba(255,255,255,0.1)",
                     background: "rgba(255,255,255,0.03)",
                     color: "#FAFAFA",
                     cursor: "pointer",
+                    flex: 1,
                   }}
                 >
-                  <Copy style={{ width: "12px", height: "12px" }} />
+                  <Copy style={{ width: "14px", height: "14px" }} />
                   {copied ? "Copied!" : "Copy details"}
                 </button>
                 <button
@@ -377,9 +429,9 @@ export function ClientPaymentPage({
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: "8px 24px",
+                    padding: "12px 24px",
                     borderRadius: "8px",
-                    fontSize: "13px",
+                    fontSize: "14px",
                     fontWeight: 700,
                     border: "none",
                     backgroundColor: color,
@@ -395,9 +447,8 @@ export function ClientPaymentPage({
           )}
         </div>
 
-          {/* Terms & Conditions */}
           {(invoice.terms || DEFAULT_TERMS) && (
-            <div style={{
+            <div className="kp-terms" style={{
               margin: "0 32px 32px",
               padding: "20px 24px",
               borderRadius: "12px",
@@ -413,7 +464,6 @@ export function ClientPaymentPage({
             </div>
           )}
 
-        {/* Footer */}
         <div style={{
           marginTop: "24px",
           textAlign: "center",
