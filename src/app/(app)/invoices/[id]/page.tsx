@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { InvoiceActions } from "@/components/forms/invoice-actions"
 import { ArrowLeft } from "lucide-react"
 import { PrintPdfButton } from "@/components/print-pdf-button"
+import QRCode from "qrcode"
 
 const statusLabels: Record<string, string> = {
   DRAFT: "Draft",
@@ -27,12 +28,34 @@ const statusStyles: Record<string, string> = {
   CANCELLED: "bg-muted text-muted-foreground",
 }
 
+function formatCurrency(amount: number, currency: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency || "USD",
+  }).format(amount)
+}
+
 export default async function InvoiceDetailPage(
   props: PageProps<"/invoices/[id]">,
 ) {
   const { id } = await props.params
   const session = await auth()
   if (!session?.user) redirect("/login")
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      brandName: true,
+      brandColor: true,
+      logoUrl: true,
+      bankName: true,
+      bankAccountName: true,
+      bankAccountNumber: true,
+      name: true,
+      email: true,
+      slug: true,
+    },
+  })
 
   const invoice = await prisma.invoice.findFirst({
     where: { id, userId: session.user.id },
@@ -44,6 +67,19 @@ export default async function InvoiceDetailPage(
   })
 
   if (!invoice) notFound()
+
+  const brandName = user?.brandName || user?.name || "Freelancer"
+  const brandColor = user?.brandColor || "#e85d3a"
+
+  const today = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+
+  const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://kredo-gray.vercel.app"
+  const paymentUrl = `${siteUrl}/${user?.slug || "freelancer"}/invoice/${id}`
+  const qrDataUrl = await QRCode.toDataURL(paymentUrl, { width: 160, margin: 0, color: { dark: "#ffffff", light: "#000000" } })
 
   return (
     <div className="space-y-6">
@@ -218,6 +254,113 @@ export default async function InvoiceDetailPage(
           status={invoice.status}
         />
         <PrintPdfButton />
+      </div>
+
+      {/* Print-only branded invoice */}
+      <div className="print-only" style={{ background: "#000", padding: "56px 48px", minHeight: "100vh" }}>
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+          {/* Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 40 }}>
+            <div>
+              {user?.logoUrl ? (
+                <img src={user.logoUrl} alt="" style={{ height: 56, display: "block" }} />
+              ) : (
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em" }}>{brandName}</div>
+              )}
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: brandColor, marginBottom: 3 }}>Invoice</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: "#fff", letterSpacing: "-0.01em" }}>{invoice.number}</div>
+              <div style={{ fontSize: 13, color: "#555", marginTop: 4 }}>{today}</div>
+            </div>
+          </div>
+
+          {/* Accent bar */}
+          <div style={{ height: 3, width: "100%", background: brandColor, marginBottom: 40, borderRadius: 2 }} />
+
+          {/* Addresses */}
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 44 }}>
+            <div style={{ width: "45%" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#444", marginBottom: 8 }}>From</div>
+              <div style={{ fontSize: 18, fontWeight: 600, color: "#fff", marginBottom: 4 }}>{brandName}</div>
+              <div style={{ fontSize: 14, color: "#777", lineHeight: "1.6" }}>{user?.email}</div>
+            </div>
+            <div style={{ width: "45%", textAlign: "right" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#444", marginBottom: 8 }}>Bill To</div>
+              <div style={{ fontSize: 18, fontWeight: 600, color: "#fff", marginBottom: 4 }}>{invoice.client.name}</div>
+              {invoice.client.company && <div style={{ fontSize: 14, color: "#777", lineHeight: "1.6" }}>{invoice.client.company}</div>}
+              <div style={{ fontSize: 14, color: "#777", lineHeight: "1.6" }}>{invoice.client.email}</div>
+            </div>
+          </div>
+
+          {/* Items table */}
+          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 28 }}>
+            <thead>
+              <tr>
+                <th style={{ padding: "14px 18px", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "left", color: "#555", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Description</th>
+                <th style={{ padding: "14px 18px", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "right", color: "#555", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Qty</th>
+                <th style={{ padding: "14px 18px", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "right", color: "#555", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Rate</th>
+                <th style={{ padding: "14px 18px", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "right", color: "#555", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoice.items.map((item, i) => (
+                <tr key={i}>
+                  <td style={{ padding: "16px 18px", fontSize: 15, borderBottom: "1px solid rgba(255,255,255,0.03)", color: "#ddd" }}>{item.description}</td>
+                  <td style={{ padding: "16px 18px", fontSize: 15, borderBottom: "1px solid rgba(255,255,255,0.03)", textAlign: "right", color: "#888" }}>{item.quantity}</td>
+                  <td style={{ padding: "16px 18px", fontSize: 15, borderBottom: "1px solid rgba(255,255,255,0.03)", textAlign: "right", color: "#888" }}>{formatCurrency(item.rate, invoice.currency)}</td>
+                  <td style={{ padding: "16px 18px", fontSize: 15, borderBottom: "1px solid rgba(255,255,255,0.03)", textAlign: "right", color: "#fff", fontWeight: 500 }}>{formatCurrency(item.amount, invoice.currency)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Totals */}
+          <div style={{ marginLeft: "auto", width: 270, marginBottom: 44 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 14, color: "#777" }}>
+              <span>Subtotal</span><span>{formatCurrency(invoice.amount, invoice.currency)}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 14, color: "#777" }}>
+              <span>Tax</span><span>{formatCurrency(invoice.tax, invoice.currency)}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "14px 0 6px", borderTop: "1.5px solid " + brandColor, marginTop: 6, fontSize: 22, fontWeight: 700, color: brandColor, letterSpacing: "-0.01em" }}>
+              <span>Total</span><span>{formatCurrency(invoice.total, invoice.currency)}</span>
+            </div>
+          </div>
+
+          {/* Bank + QR */}
+          <div style={{ border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "22px 26px", marginBottom: 36 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: brandColor, marginBottom: 14 }}>
+              {user?.bankName ? "Payment Details" : "Pay Online"}
+            </div>
+            {user?.bankName && (
+              <div style={{ display: "flex", gap: 40, flexWrap: "wrap", marginBottom: 16 }}>
+                {user.bankName && <div style={{ fontSize: 14, color: "#999" }}>Bank<strong style={{ display: "block", fontSize: 15, color: "#fff", fontWeight: 600, marginTop: 2 }}>{user.bankName}</strong></div>}
+                {user.bankAccountName && <div style={{ fontSize: 14, color: "#999" }}>Account Name<strong style={{ display: "block", fontSize: 15, color: "#fff", fontWeight: 600, marginTop: 2 }}>{user.bankAccountName}</strong></div>}
+                {user.bankAccountNumber && <div style={{ fontSize: 14, color: "#999" }}>Account Number<strong style={{ display: "block", fontSize: 15, color: "#fff", fontWeight: 600, marginTop: 2 }}>{user.bankAccountNumber}</strong></div>}
+              </div>
+            )}
+            <div style={{ display: "flex", justifyContent: user?.bankName ? "flex-end" : "flex-start", paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+              <div style={{ textAlign: user?.bankName ? "right" : "left" }}>
+                <div style={{ fontSize: 9, color: "#555", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Scan to pay</div>
+                <img src={qrDataUrl} alt="QR" style={{ width: 100, height: 100, display: "inline-block" }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Notes */}
+          {invoice.notes && (
+            <div style={{ fontSize: 13, color: "#666", marginBottom: 40, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#444", marginBottom: 8 }}>Notes</div>
+              <div>{invoice.notes}</div>
+            </div>
+          )}
+
+          {/* Footer */}
+          <div style={{ textAlign: "center", fontSize: 11, color: "#333", paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.03)" }}>
+            Powered by Kredo
+          </div>
+        </div>
       </div>
     </div>
   )

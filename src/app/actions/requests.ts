@@ -11,18 +11,48 @@ export async function submitProjectRequest(slug: string, formData: FormData) {
 
   const clientName = formData.get("clientName") as string
   const clientEmail = formData.get("clientEmail") as string
+  const clientPhone = formData.get("clientPhone") as string
+  const company = formData.get("company") as string
   const projectName = formData.get("projectName") as string
   const description = formData.get("description") as string
-  const budget = formData.get("budget") ? Number(formData.get("budget")) : null
+  const features = formData.get("features") as string
+  const referenceUrls = formData.get("referenceUrls") as string
+  const timeline = formData.get("timeline") as string
+
+  // Auto-create or update Client record
+  const existingClient = await prisma.client.findFirst({
+    where: { userId: user.id, email: clientEmail },
+  })
+
+  if (existingClient) {
+    await prisma.client.update({
+      where: { id: existingClient.id },
+      data: { name: clientName, phone: clientPhone, company },
+    })
+  } else {
+    await prisma.client.create({
+      data: {
+        userId: user.id,
+        name: clientName,
+        email: clientEmail,
+        phone: clientPhone,
+        company,
+      },
+    })
+  }
 
   const request = await prisma.projectRequest.create({
     data: {
       userId: user.id,
       clientName,
       clientEmail,
+      clientPhone,
+      company,
       projectName,
       description,
-      budget,
+      features,
+      referenceUrls,
+      timeline,
     },
   })
 

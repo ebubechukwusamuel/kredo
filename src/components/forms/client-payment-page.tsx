@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { CheckCircle, Building, User, Copy } from "lucide-react"
+import { useState, useRef } from "react"
+import { CheckCircle, Copy, Printer } from "lucide-react"
 
 interface ClientPaymentPageProps {
   invoice: {
@@ -29,22 +29,27 @@ interface ClientPaymentPageProps {
   clientEmail: string
 }
 
+function formatCurrency(amount: number, currency: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency || "USD",
+  }).format(amount)
+}
+
 export function ClientPaymentPage({
   invoice,
   freelancer,
   invoiceId,
-  clientEmail,
 }: ClientPaymentPageProps) {
   const [confirmed, setConfirmed] = useState(false)
   const [copied, setCopied] = useState(false)
+  const printRef = useRef<HTMLDivElement>(null)
   const color = freelancer.brandColor
-
-  function formatCurrency(amount: number) {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: invoice.currency || "USD",
-    }).format(amount)
-  }
+  const today = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
 
   async function handleConfirmDeposit() {
     const res = await fetch(`/api/invoice/${invoiceId}/confirm-deposit`, {
@@ -52,6 +57,10 @@ export function ClientPaymentPage({
     })
     if (res.ok) setConfirmed(true)
     else alert("Something went wrong. Please try again.")
+  }
+
+  function handlePrint() {
+    window.print()
   }
 
   function handleCopyAccount() {
@@ -69,7 +78,7 @@ export function ClientPaymentPage({
 
   if (confirmed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="flex min-h-screen items-center justify-center bg-[#09090B] px-4">
         <div className="max-w-md text-center">
           <div
             className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full"
@@ -77,10 +86,10 @@ export function ClientPaymentPage({
           >
             <CheckCircle className="h-8 w-8" style={{ color }} />
           </div>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">
+          <h1 className="font-heading text-2xl font-bold tracking-tight text-white">
             Deposit confirmed!
           </h1>
-          <p className="mt-3 text-muted-foreground">
+          <p className="mt-3 text-white/50">
             Your deposit has been confirmed. Your project is now in progress. We'll notify
             you when your project is ready.
           </p>
@@ -90,124 +99,277 @@ export function ClientPaymentPage({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="flex h-16 items-center border-b border-border bg-background/80 px-6 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-4xl items-center">
-          {freelancer.logoUrl ? (
-            <img src={freelancer.logoUrl} alt="" className="h-8" />
-          ) : (
-            <span
-              className="font-heading text-lg font-bold"
-              style={{ color }}
-            >
-              {freelancer.name}
-            </span>
-          )}
-        </div>
-      </header>
+    <>
+      {/* Print stylesheet */}
+      <style>{`
+@media print {
+  @page { margin: 0; size: A4; }
+  html, body { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-hide { display: none !important; }
+  .print-root {
+    background: #000 !important;
+    min-height: 100vh !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-invoice {
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-payment-box {
+    border: 1px solid rgba(255,255,255,0.12) !important;
+  }
+}
+`}</style>
 
-      <main className="mx-auto max-w-4xl px-4 py-12">
-        <div className="mb-8">
-          <p className="text-sm text-muted-foreground">Invoice</p>
-          <h1 className="font-heading text-2xl font-bold tracking-tight">
-            {invoice.number}
-          </h1>
-        </div>
-
-        <div className="rounded-xl border border-border bg-card p-6">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-muted-foreground">
-                <th className="pb-3 font-medium">Description</th>
-                <th className="pb-3 font-medium">Qty</th>
-                <th className="pb-3 text-right font-medium">Rate</th>
-                <th className="pb-3 text-right font-medium">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoice.items.map((item, i) => (
-                <tr key={i} className="border-b border-border last:border-b-0">
-                  <td className="py-3">{item.description}</td>
-                  <td className="py-3">{item.quantity}</td>
-                  <td className="py-3 text-right">
-                    {formatCurrency(item.rate)}
-                  </td>
-                  <td className="py-3 text-right font-medium">
-                    {formatCurrency(item.amount)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="mt-4 space-y-1.5 border-t border-border pt-4 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Total</span>
-              <span className="font-semibold">{formatCurrency(invoice.total)}</span>
-            </div>
-            <div className="flex justify-between text-base">
-              <span className="font-medium">Deposit required (50%)</span>
-              <span
-                className="text-lg font-bold"
-                style={{ color }}
-              >
-                {formatCurrency(invoice.depositAmount)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {freelancer.bankName && (
-          <div className="mt-8 rounded-xl border-2 border-dashed border-border bg-card/50 p-6">
-            <h2 className="font-heading text-base font-semibold">
-              Make your deposit
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Transfer your deposit to the account below, then confirm your payment.
-            </p>
-            <div className="mt-4 space-y-3 rounded-lg bg-muted/50 p-4">
-              {freelancer.bankName && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Building className="h-4 w-4 text-muted-foreground" />
-                  <span>{freelancer.bankName}</span>
-                </div>
-              )}
-              {freelancer.bankAccountName && (
-                <div className="flex items-center gap-3 text-sm">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span>{freelancer.bankAccountName}</span>
-                </div>
-              )}
-              {freelancer.bankAccountNumber && (
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="font-mono font-medium">
-                    {freelancer.bankAccountNumber}
-                  </span>
-                </div>
-              )}
-              <button
-                onClick={handleCopyAccount}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-primary transition-colors hover:text-primary/80"
-              >
-                <Copy className="h-3 w-3" />
-                {copied ? "Copied!" : "Copy account details"}
-              </button>
-            </div>
-
+      <div ref={printRef} className="print-root" style={{ backgroundColor: "#09090B", color: "#FAFAFA", minHeight: "100vh", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto", padding: "40px 24px" }}>
+          {/* Print Button */}
+          <div className="print-hide" style={{ textAlign: "right", marginBottom: "16px" }}>
             <button
-              onClick={handleConfirmDeposit}
-              className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-lg px-6 text-sm font-medium text-white transition-all"
-              style={{ backgroundColor: color }}
+              onClick={handlePrint}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "8px 16px",
+                borderRadius: "8px",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: "1px solid rgba(255,255,255,0.1)",
+                background: "rgba(255,255,255,0.05)",
+                color: "#FAFAFA",
+                cursor: "pointer",
+              }}
             >
-              I&apos;ve made the deposit
+              <Printer style={{ width: "14px", height: "14px" }} />
+              Print / PDF
             </button>
           </div>
-        )}
-      </main>
 
-      <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
-        Powered by Kredo
-      </footer>
+          {/* Invoice Document */}
+          <div className="print-invoice" style={{
+            background: "rgba(255,255,255,0.02)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "16px",
+            overflow: "hidden",
+          }}>
+          {/* Invoice Header */}
+          <div style={{
+            padding: "32px 32px 24px",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+          }}>
+            <div>
+              {freelancer.logoUrl ? (
+                <img src={freelancer.logoUrl} alt="" style={{ height: "40px", marginBottom: "12px", display: "block" }} />
+              ) : (
+                <div style={{ fontSize: "22px", fontWeight: 800, color, marginBottom: "12px", letterSpacing: "-0.03em" }}>
+                  {freelancer.name}
+                </div>
+              )}
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>
+                {freelancer.name}
+              </div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "4px" }}>
+                Invoice
+              </div>
+              <div style={{ fontSize: "22px", fontWeight: 700, color: "#FAFAFA", letterSpacing: "-0.02em" }}>
+                {invoice.number}
+              </div>
+              <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", marginTop: "4px" }}>
+                {today}
+              </div>
+            </div>
+          </div>
+
+          {/* Invoice Body */}
+          <div style={{ padding: "24px 32px" }}>
+            {/* Items Table */}
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <th style={{ padding: "10px 8px 10px 0", textAlign: "left", color: "rgba(255,255,255,0.35)", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Description
+                  </th>
+                  <th style={{ padding: "10px 8px", textAlign: "right", color: "rgba(255,255,255,0.35)", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Qty
+                  </th>
+                  <th style={{ padding: "10px 8px", textAlign: "right", color: "rgba(255,255,255,0.35)", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Rate
+                  </th>
+                  <th style={{ padding: "10px 0 10px 8px", textAlign: "right", color: "rgba(255,255,255,0.35)", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoice.items.map((item, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                    <td style={{ padding: "14px 8px 14px 0", color: "#FAFAFA", fontWeight: 500 }}>
+                      {item.description}
+                    </td>
+                    <td style={{ padding: "14px 8px", textAlign: "right", color: "rgba(255,255,255,0.6)" }}>
+                      {item.quantity}
+                    </td>
+                    <td style={{ padding: "14px 8px", textAlign: "right", color: "rgba(255,255,255,0.6)" }}>
+                      {formatCurrency(item.rate, invoice.currency)}
+                    </td>
+                    <td style={{ padding: "14px 0 14px 8px", textAlign: "right", color: "#FAFAFA", fontWeight: 600 }}>
+                      {formatCurrency(item.amount, invoice.currency)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Totals */}
+            <div style={{ marginTop: "20px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "48px" }}>
+                <div style={{ minWidth: "200px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
+                    <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>Total</span>
+                    <span style={{ fontSize: "14px", color: "#FAFAFA", fontWeight: 600 }}>
+                      {formatCurrency(invoice.total, invoice.currency)}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0 0", marginTop: "4px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                    <span style={{ fontSize: "14px", fontWeight: 700, color }}>Deposit (50%)</span>
+                    <span style={{ fontSize: "20px", fontWeight: 800, color }}>
+                      {formatCurrency(invoice.depositAmount, invoice.currency)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bank Details */}
+          {freelancer.bankName && (
+            <div style={{
+              margin: "0 32px 32px",
+              borderRadius: "12px",
+              border: "1px dashed rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.02)",
+              padding: "24px",
+            }}>
+              <div style={{ fontSize: "13px", fontWeight: 700, color: "#FAFAFA", marginBottom: "4px" }}>
+                Make your deposit
+              </div>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "16px" }}>
+                Transfer the deposit amount to the account below
+              </div>
+              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                <div style={{
+                  flex: 1,
+                  minWidth: "140px",
+                  padding: "12px 14px",
+                  borderRadius: "8px",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.05)",
+                }}>
+                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
+                    Bank
+                  </div>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: "#FAFAFA" }}>
+                    {freelancer.bankName}
+                  </div>
+                </div>
+                <div style={{
+                  flex: 1,
+                  minWidth: "140px",
+                  padding: "12px 14px",
+                  borderRadius: "8px",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.05)",
+                }}>
+                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
+                    Account Name
+                  </div>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: "#FAFAFA" }}>
+                    {freelancer.bankAccountName}
+                  </div>
+                </div>
+                <div style={{
+                  flex: 1,
+                  minWidth: "140px",
+                  padding: "12px 14px",
+                  borderRadius: "8px",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.05)",
+                }}>
+                  <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
+                    Account Number
+                  </div>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: "#FAFAFA", fontFamily: "monospace" }}>
+                    {freelancer.bankAccountNumber}
+                  </div>
+                </div>
+              </div>
+              <div className="print-hide" style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
+                <button
+                  onClick={handleCopyAccount}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.03)",
+                    color: "#FAFAFA",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Copy style={{ width: "12px", height: "12px" }} />
+                  {copied ? "Copied!" : "Copy details"}
+                </button>
+                <button
+                  onClick={handleConfirmDeposit}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "8px 24px",
+                    borderRadius: "8px",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    border: "none",
+                    backgroundColor: color,
+                    color: "#FAFAFA",
+                    cursor: "pointer",
+                    flex: 1,
+                  }}
+                >
+                  I&apos;ve made the deposit
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{
+          marginTop: "24px",
+          textAlign: "center",
+          fontSize: "12px",
+          color: "rgba(255,255,255,0.2)",
+          padding: "16px 0",
+        }}>
+          Powered by Kredo
+        </div>
+      </div>
     </div>
+    </>
   )
 }

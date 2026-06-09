@@ -20,6 +20,7 @@ export async function createInvoice(formData: FormData) {
   const notes = formData.get("notes") as string
   const terms = formData.get("terms") as string
   const currency = (formData.get("currency") as string) || "USD"
+  const requestId = formData.get("requestId") as string
 
   const descriptions = formData.getAll("description") as string[]
   const quantities = formData.getAll("quantity") as string[]
@@ -45,7 +46,7 @@ export async function createInvoice(formData: FormData) {
 
   const number = generateInvoiceNumber()
 
-  await prisma.invoice.create({
+  const invoice = await prisma.invoice.create({
     data: {
       userId: session.user.id,
       clientId,
@@ -57,12 +58,19 @@ export async function createInvoice(formData: FormData) {
       dueDate: dueDate ? new Date(dueDate) : null,
       notes: notes || null,
       terms: terms || null,
-      status: "DRAFT",
+      status: "SENT",
       items: {
         create: items,
       },
     },
   })
+
+  if (requestId) {
+    await prisma.projectRequest.update({
+      where: { id: requestId },
+      data: { invoiceId: invoice.id, status: "INVOICE_SENT" },
+    })
+  }
 
   revalidatePath("/invoices")
   redirect("/invoices")
@@ -92,16 +100,10 @@ export async function createInvoiceFromRequest({
   requestId,
   clientName,
   clientEmail,
-  projectName,
-  description,
-  budget,
 }: {
   requestId: string
   clientName: string
   clientEmail: string
-  projectName: string
-  description: string
-  budget: number
 }) {
   const session = await auth()
   if (!session?.user?.id) throw new Error("Not authenticated")
@@ -123,38 +125,7 @@ export async function createInvoiceFromRequest({
     })
   }
 
-  const total = budget
-  const depositAmount = total * 0.5
-  const number = generateInvoiceNumber()
-
-  const invoice = await prisma.invoice.create({
-    data: {
-      userId: session.user.id,
-      clientId: client.id,
-      number,
-      amount: total,
-      tax: 0,
-      total,
-      depositAmount,
-      status: "SENT",
-      items: {
-        create: {
-          description: projectName + (description ? ` — ${description.slice(0, 100)}` : ""),
-          quantity: 1,
-          rate: total,
-          amount: total,
-        },
-      },
-    },
-  })
-
-  await prisma.projectRequest.update({
-    where: { id: requestId },
-    data: { invoiceId: invoice.id, status: "INVOICE_SENT" },
-  })
-
-  revalidatePath(`/requests/${requestId}`)
-  return { id: invoice.id }
+  redirect(`/invoices/new?clientId=${client.id}&requestId=${requestId}`)
 }
 
 export async function deleteInvoice(id: string) {

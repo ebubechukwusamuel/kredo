@@ -293,20 +293,24 @@ model Payment {
 }
 
 model ProjectRequest {
-  id           String   @id @default(cuid())
-  userId       String
-  invoiceId    String?
-  clientName   String
-  clientEmail  String
-  projectName  String
-  description  String?
-  budget       Float?
-  status       String   @default("PENDING")
-  depositPaid  Boolean  @default(false)
-  deliveryLink String?
-  deliveredAt  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String   @id @default(cuid())
+  userId        String
+  invoiceId     String?
+  clientName    String
+  clientEmail   String
+  clientPhone   String?
+  company       String?
+  projectName   String
+  description   String?
+  features      String?
+  referenceUrls String?
+  timeline      String?
+  status        String   @default("PENDING")
+  depositPaid   Boolean  @default(false)
+  deliveryLink  String?
+  deliveredAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)

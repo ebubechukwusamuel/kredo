@@ -14,8 +14,6 @@ interface RequestActionsProps {
     clientName: string
     clientEmail: string
     projectName: string
-    description: string | null
-    budget: number | null
     invoiceId: string | null
     deliveryLink: string | null
   }
@@ -29,21 +27,11 @@ export function RequestActions({ request }: RequestActionsProps) {
 
   async function handleCreateInvoice() {
     setLoading("invoice")
-    try {
-      const invoice = await createInvoiceFromRequest({
-        requestId: request.id,
-        clientName: request.clientName,
-        clientEmail: request.clientEmail,
-        projectName: request.projectName,
-        description: request.description || "",
-        budget: request.budget || 0,
-      })
-      router.push(`/invoices/${invoice.id}`)
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(null)
-    }
+    await createInvoiceFromRequest({
+      requestId: request.id,
+      clientName: request.clientName,
+      clientEmail: request.clientEmail,
+    })
   }
 
   async function handleMarkDepositPaid() {

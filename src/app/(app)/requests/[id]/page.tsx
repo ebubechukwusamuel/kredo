@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { RequestActions } from "@/components/forms/request-actions"
-import { ArrowLeft, Mail, User, DollarSign, FileText } from "lucide-react"
+import { ArrowLeft, Mail, Phone, Building2, User, FileText, Link2, Clock } from "lucide-react"
 import Link from "next/link"
 
 const statusLabels: Record<string, string> = {
@@ -85,10 +85,18 @@ export default async function RequestDetailPage(
               {req.clientEmail}
             </a>
           </div>
-          {req.budget && (
+          {req.clientPhone && (
             <div className="flex items-center gap-3 text-sm">
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-              <span>Budget: ${req.budget.toLocaleString()}</span>
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              <a href={`tel:${req.clientPhone}`} className="hover:underline">
+                {req.clientPhone}
+              </a>
+            </div>
+          )}
+          {req.company && (
+            <div className="flex items-center gap-3 text-sm">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <span>{req.company}</span>
             </div>
           )}
         </div>
@@ -101,6 +109,50 @@ export default async function RequestDetailPage(
           <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
             {req.description}
           </p>
+        </div>
+      )}
+
+      {/* Features / Requirements */}
+      {req.features && (
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h2 className="font-heading text-base font-semibold">Features & Requirements</h2>
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+            {req.features}
+          </p>
+        </div>
+      )}
+
+      {/* Reference URLs */}
+      {req.referenceUrls && (
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2">
+            <Link2 className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-heading text-base font-semibold">References & Examples</h2>
+          </div>
+          <div className="mt-3 space-y-1">
+            {req.referenceUrls.split("\n").filter(Boolean).map((url, i) => (
+              <a
+                key={i}
+                href={url.trim()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-sm text-primary hover:underline"
+              >
+                {url.trim()}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Timeline */}
+      {req.timeline && (
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-heading text-base font-semibold">Desired Timeline</h2>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">{req.timeline}</p>
         </div>
       )}
 
@@ -178,8 +230,6 @@ export default async function RequestDetailPage(
           clientName: req.clientName,
           clientEmail: req.clientEmail,
           projectName: req.projectName,
-          description: req.description,
-          budget: req.budget,
           invoiceId: req.invoiceId,
           deliveryLink: req.deliveryLink,
         }}

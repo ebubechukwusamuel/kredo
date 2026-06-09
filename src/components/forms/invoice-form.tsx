@@ -15,8 +15,12 @@ interface LineItem {
 
 export function InvoiceForm({
   clients,
+  initialClientId,
+  requestId,
 }: {
   clients: { id: string; name: string; company: string | null }[]
+  initialClientId?: string
+  requestId?: string
 }) {
   const router = useRouter()
   const [, formAction, pending] = useActionState(
@@ -59,16 +63,19 @@ export function InvoiceForm({
 
   return (
     <form action={formAction} className="space-y-6">
+      {requestId && <input type="hidden" name="requestId" value={requestId} />}
+
       <div className="space-y-2">
         <label htmlFor="clientId" className="text-sm font-medium">
           Client <span className="text-destructive">*</span>
         </label>
-        <select
-          id="clientId"
-          name="clientId"
-          required
-          className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-        >
+          <select
+            id="clientId"
+            name="clientId"
+            required
+            defaultValue={initialClientId || ""}
+            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
           <option value="">Select a client</option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import "../../landing.css"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -36,23 +37,32 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm">
+    <div className="kredo-landing flex min-h-screen items-center justify-center px-4 relative overflow-hidden">
+      {/* Glow Effects */}
+      <div className="glow-container">
+        <div className="glow-red opacity-40"></div>
+        <div className="glow-orange opacity-50" style={{ transform: "translateY(-100px)" }}></div>
+      </div>
+
+      <div className="w-full max-w-sm relative z-10 p-8 rounded-2xl bg-[#09090B]/60 backdrop-blur-xl border border-white/10 shadow-2xl">
         <div className="mb-8 text-center">
-          <Link href="/" className="font-heading text-2xl font-bold tracking-tight">
+          <Link href="/" className="kredo-nav-logo justify-center mb-6">
+            <div className="kredo-nav-logo-icon">
+              <div />
+            </div>
             Kredo
           </Link>
-          <h1 className="mt-6 font-heading text-2xl font-bold tracking-tight">
+          <h1 className="mt-6 text-2xl font-bold tracking-tight text-[#FAFAFA]">
             Welcome back
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-[#A1A1AA]">
             Sign in to your Kredo account
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
+            <label htmlFor="email" className="text-sm font-medium text-[#FAFAFA]">
               Email
             </label>
             <input
@@ -60,13 +70,13 @@ export default function LoginPage() {
               name="email"
               type="email"
               required
-              className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white shadow-sm transition-colors placeholder:text-white/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500 focus-visible:border-orange-500"
               placeholder="you@example.com"
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
+            <label htmlFor="password" className="text-sm font-medium text-[#FAFAFA]">
               Password
             </label>
             <input
@@ -74,19 +84,19 @@ export default function LoginPage() {
               name="password"
               type="password"
               required
-              className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white shadow-sm transition-colors placeholder:text-white/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500 focus-visible:border-orange-500"
               placeholder="Enter your password"
             />
           </div>
 
           {error && (
-            <p className="text-sm text-destructive">{error}</p>
+            <p className="text-sm text-red-400">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-gradient-to-b from-white to-white/80 px-5 text-sm font-medium text-black transition-all hover:bg-white disabled:opacity-50 mt-4 shadow-md"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>
@@ -94,10 +104,10 @@ export default function LoginPage() {
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
+            <span className="w-full border-t border-white/10" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
+            <span className="bg-[#09090B] px-2 text-[#A1A1AA]">
               Or continue with
             </span>
           </div>
@@ -105,7 +115,7 @@ export default function LoginPage() {
 
         <button
           onClick={() => signIn("google", { redirectTo: "/dashboard" })}
-          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-5 text-sm font-medium transition-all hover:bg-muted"
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 text-sm font-medium text-[#FAFAFA] transition-all hover:bg-white/10"
         >
           <svg className="h-4 w-4" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -116,9 +126,9 @@ export default function LoginPage() {
           Continue with Google
         </button>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+        <p className="mt-6 text-center text-sm text-[#A1A1AA]">
           Don&apos;t have an account?{" "}
-          <Link href="/register" className="font-medium text-primary underline-offset-4 hover:underline">
+          <Link href="/register" className="font-medium text-orange-400 underline-offset-4 hover:underline">
             Sign up
           </Link>
         </p>

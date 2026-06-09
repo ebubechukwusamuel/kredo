@@ -59,8 +59,7 @@ export function PublicIntakeForm({
             id="clientName"
             name="clientName"
             required
-            className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2"
-            style={{ focusVisible: { ringColor: brandColor } } as React.CSSProperties}
+            className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
             placeholder="Jane Smith"
           />
         </div>
@@ -75,6 +74,33 @@ export function PublicIntakeForm({
             required
             className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
             placeholder="jane@example.com"
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label htmlFor="clientPhone" className="text-sm font-medium">
+            Phone number *
+          </label>
+          <input
+            id="clientPhone"
+            name="clientPhone"
+            type="tel"
+            required
+            className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+            placeholder="+1 234 567 8900"
+          />
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="company" className="text-sm font-medium">
+            Company / Organisation
+          </label>
+          <input
+            id="company"
+            name="company"
+            className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+            placeholder="Acme Inc."
           />
         </div>
       </div>
@@ -94,28 +120,53 @@ export function PublicIntakeForm({
 
       <div className="space-y-2">
         <label htmlFor="description" className="text-sm font-medium">
-          Project description
+          Project description *
         </label>
         <textarea
           id="description"
           name="description"
+          required
           rows={4}
           className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
-          placeholder="Tell us about your project, goals, timeline..."
+          placeholder="Describe the project in detail — what is it, who is it for, what problem does it solve..."
         />
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="budget" className="text-sm font-medium">
-          Budget (optional)
+        <label htmlFor="features" className="text-sm font-medium">
+          Specific features / requirements
+        </label>
+        <textarea
+          id="features"
+          name="features"
+          rows={3}
+          className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+          placeholder="List any specific features, pages, integrations, or functionality you need..."
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="referenceUrls" className="text-sm font-medium">
+          Reference websites / examples
+        </label>
+        <textarea
+          id="referenceUrls"
+          name="referenceUrls"
+          rows={2}
+          className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+          placeholder="Links to websites or designs you like — one per line"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="timeline" className="text-sm font-medium">
+          Desired timeline
         </label>
         <input
-          id="budget"
-          name="budget"
-          type="number"
-          min="0"
+          id="timeline"
+          name="timeline"
           className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
-          placeholder="1000"
+          placeholder="e.g. Within 2 weeks, ASAP, By end of month"
         />
       </div>
 

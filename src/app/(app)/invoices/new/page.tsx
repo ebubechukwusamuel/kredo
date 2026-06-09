@@ -3,9 +3,13 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { InvoiceForm } from "@/components/forms/invoice-form"
 
-export default async function NewInvoicePage() {
+export default async function NewInvoicePage(props: {
+  searchParams?: Promise<{ clientId?: string; requestId?: string }>
+}) {
   const session = await auth()
   if (!session?.user) redirect("/login")
+
+  const searchParams = await props.searchParams
 
   const clients = await prisma.client.findMany({
     where: { userId: session.user.id },
@@ -22,7 +26,11 @@ export default async function NewInvoicePage() {
         </p>
       </div>
       <div className="rounded-xl border border-border bg-card p-6">
-        <InvoiceForm clients={clients} />
+        <InvoiceForm
+          clients={clients}
+          initialClientId={searchParams?.clientId}
+          requestId={searchParams?.requestId}
+        />
       </div>
     </div>
   )

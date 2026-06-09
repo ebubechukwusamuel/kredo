@@ -31,67 +31,93 @@
   --radius: 0.5rem;
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-fade-in-up: fade-in-up 0.5s ease-out;
+  --animate-fade-in-up-slow: fade-in-up 0.7s ease-out;
+  --animate-glow-breathe: glow-breathe 4s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.03); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 :root {
-  --background: #faf8f5;
-  --foreground: #1a1614;
-  --card: #ffffff;
-  --card-foreground: #1a1614;
-  --popover: #ffffff;
-  --popover-foreground: #1a1614;
-  --primary: #e85d3a;
-  --primary-foreground: #ffffff;
-  --secondary: #f5f0eb;
-  --secondary-foreground: #1a1614;
-  --muted: #f0ece7;
-  --muted-foreground: #7a7269;
-  --accent: #e85d3a;
-  --accent-foreground: #ffffff;
+  /* Kredo Dark Fire Theme */
+  --background: #09090B;
+  --foreground: #FAFAFA;
+  --card: rgba(250, 250, 250, 0.02);
+  --card-foreground: #FAFAFA;
+  --popover: #09090B;
+  --popover-foreground: #FAFAFA;
+  --primary: #EF4444; /* Fire red */
+  --primary-foreground: #FAFAFA;
+  --secondary: rgba(250, 250, 250, 0.05);
+  --secondary-foreground: #FAFAFA;
+  --muted: rgba(250, 250, 250, 0.05);
+  --muted-foreground: #A1A1AA;
+  --accent: #FDBA74; /* Fire orange */
+  --accent-foreground: #18181B;
   --destructive: #d43b3b;
   --destructive-foreground: #ffffff;
-  --border: #e8e4df;
-  --input: #e8e4df;
-  --ring: #e85d3a;
-  --sidebar: #0f0e17;
-  --sidebar-foreground: #e4e0da;
-  --sidebar-primary: #e85d3a;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(232, 93, 58, 0.12);
-  --sidebar-accent-foreground: #e85d3a;
-  --sidebar-border: #1e1c28;
-  --sidebar-ring: #e85d3a;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #EF4444;
+  --sidebar: #09090B;
+  --sidebar-foreground: #FAFAFA;
+  --sidebar-primary: #EF4444;
+  --sidebar-primary-foreground: #FAFAFA;
+  --sidebar-accent: rgba(250, 250, 250, 0.05);
+  --sidebar-accent-foreground: #FAFAFA;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #EF4444;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #121110;
-    --foreground: #e8e4df;
-    --card: #1a1816;
-    --card-foreground: #e8e4df;
-    --popover: #1a1816;
-    --popover-foreground: #e8e4df;
-    --primary: #e85d3a;
-    --primary-foreground: #ffffff;
-    --secondary: #1e1c1a;
-    --secondary-foreground: #e8e4df;
-    --muted: #1e1c1a;
-    --muted-foreground: #8a8278;
-    --accent: #e85d3a;
-    --accent-foreground: #ffffff;
+    --background: #09090B;
+    --foreground: #FAFAFA;
+    --card: rgba(250, 250, 250, 0.02);
+    --card-foreground: #FAFAFA;
+    --popover: #09090B;
+    --popover-foreground: #FAFAFA;
+    --primary: #EF4444;
+    --primary-foreground: #FAFAFA;
+    --secondary: rgba(250, 250, 250, 0.05);
+    --secondary-foreground: #FAFAFA;
+    --muted: rgba(250, 250, 250, 0.05);
+    --muted-foreground: #A1A1AA;
+    --accent: #FDBA74;
+    --accent-foreground: #18181B;
     --destructive: #d43b3b;
     --destructive-foreground: #ffffff;
-    --border: #2a2724;
-    --input: #2a2724;
-    --ring: #e85d3a;
-    --sidebar: #0f0e17;
-    --sidebar-foreground: #e4e0da;
-    --sidebar-primary: #e85d3a;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: rgba(232, 93, 58, 0.15);
-    --sidebar-accent-foreground: #e85d3a;
-    --sidebar-border: #1e1c28;
-    --sidebar-ring: #e85d3a;
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.1);
+    --ring: #EF4444;
+    --sidebar: #09090B;
+    --sidebar-foreground: #FAFAFA;
+    --sidebar-primary: #EF4444;
+    --sidebar-primary-foreground: #FAFAFA;
+    --sidebar-accent: rgba(250, 250, 250, 0.05);
+    --sidebar-accent-foreground: #FAFAFA;
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --sidebar-ring: #EF4444;
   }
 }
 
@@ -104,17 +130,56 @@ body {
   border-color: var(--border);
 }
 
+.card-glow {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.card-glow:hover {
+  border-color: rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 24px -8px rgba(239, 68, 68, 0.08);
+}
+
+.card-glow-lift:hover {
+  transform: translateY(-1px);
+}
+
+.print-only {
+  display: none;
+}
+
 @media print {
   @page {
-    margin: 0.5in;
+    margin: 0;
+    size: A4;
+  }
+  html, body {
+    background: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .sidebar,
   .app-header,
   .no-print {
     display: none !important;
   }
-  body {
-    background: white !important;
-    color: black !important;
+  main:has(.print-only) .space-y-6 > :not(.print-only) {
+    display: none !important;
+  }
+  main:has(.print-only) .p-8 {
+    padding: 0 !important;
+  }
+  main:has(.print-only) .relative {
+    background: none !important;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-only {
+    display: block !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }

@@ -1,16 +1,6 @@
 import type { Metadata } from "next"
-import { DM_Sans, Bricolage_Grotesque } from "next/font/google"
+import Script from "next/script"
 import "./globals.css"
-
-const dmSans = DM_Sans({
-  variable: "--font-sans",
-  subsets: ["latin"],
-})
-
-const bricolageGrotesque = Bricolage_Grotesque({
-  variable: "--font-heading",
-  subsets: ["latin"],
-})
 
 export const metadata: Metadata = {
   title: "Kredo — The Freelancer OS",
@@ -31,9 +21,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} ${bricolageGrotesque.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
-      <body className="min-h-full font-sans">{children}</body>
+      <body className="min-h-full font-sans">
+        {children}
+        <script dangerouslySetInnerHTML={{ __html: `window.__KREDO_PROJECT__="kredo"` }} />
+        <Script src="/tracker.js" strategy="afterInteractive" />
+      </body>
     </html>
   )
 }
