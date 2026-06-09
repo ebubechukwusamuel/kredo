@@ -27,7 +27,8 @@ export function PublicIntakeForm({
       const result = await submitProjectRequest(slug, formData)
       if (result.success) setSubmitted(true)
     } catch (err) {
-      setError("Something went wrong. Please try again.")
+      console.error("[INTAKE FORM]", err)
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
     } finally {
       setLoading(false)
     }

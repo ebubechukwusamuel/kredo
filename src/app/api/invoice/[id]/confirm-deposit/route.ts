@@ -47,22 +47,26 @@ export async function POST(
     })
 
     if (req) {
-      const brandName = invoice.user.brandName || invoice.user.name || "Freelancer"
-      const brandColor = invoice.user.brandColor || "#e85d3a"
+      try {
+        const brandName = invoice.user.brandName || invoice.user.name || "Freelancer"
+        const brandColor = invoice.user.brandColor || "#e85d3a"
 
-      const { subject, html } = depositConfirmedEmail({
-        clientName: req.clientName,
-        projectName: req.projectName,
-        brandColor,
-        brandName,
-      })
-      await sendEmail({
-        to: req.clientEmail,
-        subject,
-        html,
-        fromName: brandName,
-        replyTo: invoice.user.email,
-      })
+        const { subject, html } = depositConfirmedEmail({
+          clientName: req.clientName,
+          projectName: req.projectName,
+          brandColor,
+          brandName,
+        })
+        await sendEmail({
+          to: req.clientEmail,
+          subject,
+          html,
+          fromName: brandName,
+          replyTo: invoice.user.email,
+        })
+      } catch (e) {
+        console.error("[DEPOSIT EMAIL] Failed to send to client:", e)
+      }
     }
 
     return NextResponse.json({ success: true })

@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer"
 import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -11,13 +12,38 @@ interface EmailOptions {
   replyTo?: string
 }
 
+function createSmtpTransport() {
+  const user = process.env.SMTP_USER
+  const pass = process.env.SMTP_PASS
+  if (!user || !pass) return null
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port: parseInt(process.env.SMTP_PORT || "587"),
+    secure: process.env.SMTP_SECURE === "true",
+    auth: { user, pass },
+  })
+}
+
 function getFromAddress(senderName?: string) {
-  const domain = process.env.EMAIL_DOMAIN || "kredo.app"
-  const fromEmail = `invoices@${domain}`
-  return senderName ? `${senderName} <${fromEmail}>` : (process.env.EMAIL_FROM || `Kredo <${fromEmail}>`)
+  const fallbackEmail = process.env.SMTP_USER || "kredo@kredo.app"
+  return senderName ? `${senderName} <${fallbackEmail}>` : (process.env.EMAIL_FROM || `Kredo <${fallbackEmail}>`)
 }
 
 export async function sendEmail({ to, subject, html, fromName, replyTo }: EmailOptions) {
+  const transport = createSmtpTransport()
+
+  if (transport) {
+    try {
+      const fromAddress = process.env.SMTP_USER || "noreply@kredo.app"
+      const from = fromName ? `"${fromName}" <${fromAddress}>` : `"Kredo" <${fromAddress}>`
+      await transport.sendMail({ from, to, subject, html, replyTo })
+      console.log(`[EMAIL SMTP] Sent to: ${to} | Subject: ${subject}`)
+      return
+    } catch (e) {
+      console.error("[EMAIL SMTP] Failed, falling back to Resend:", e)
+    }
+  }
+
   if (!process.env.RESEND_API_KEY) {
     console.log(`[EMAIL] To: ${to} | Subject: ${subject}`)
     console.log(`[EMAIL] HTML: ${html.slice(0, 200)}...`)
@@ -34,10 +60,10 @@ export async function sendEmail({ to, subject, html, fromName, replyTo }: EmailO
 
   if (result.error) {
     console.error("[RESEND ERROR]", JSON.stringify(result.error, null, 2))
-    throw new Error(`Resend: ${result.error.message}`)
+    return
   }
 
-  console.log(`[EMAIL SENT] To: ${to} | Subject: ${subject} | Id: ${result.data?.id}`)
+  console.log(`[EMAIL RESEND] To: ${to} | Subject: ${subject} | Id: ${result.data?.id}`)
 }
 
 function brandStyles(color: string) {

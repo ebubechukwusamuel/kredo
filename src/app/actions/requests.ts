@@ -56,13 +56,17 @@ export async function submitProjectRequest(slug: string, formData: FormData) {
     },
   })
 
-  const { subject, html } = newRequestEmail({
-    freelancerName: user.name || user.brandName || "Freelancer",
-    clientName,
-    projectName,
-    requestLink: `${getBaseUrl()}/requests/${request.id}`,
-  })
-  await sendEmail({ to: user.email, subject, html, fromName: clientName, replyTo: clientEmail })
+  try {
+    const { subject, html } = newRequestEmail({
+      freelancerName: user.name || user.brandName || "Freelancer",
+      clientName,
+      projectName,
+      requestLink: `${getBaseUrl()}/requests/${request.id}`,
+    })
+    await sendEmail({ to: user.email, subject, html, fromName: clientName, replyTo: clientEmail })
+  } catch (e) {
+    console.error("[REQUEST EMAIL] Failed to send to freelancer:", e)
+  }
 
   return { success: true }
 }
@@ -116,17 +120,21 @@ export async function submitDelivery(requestId: string, deliveryLink: string) {
     data: { deliveryLink, deliveredAt: new Date(), status: "DELIVERED" },
   })
 
-  const brandName = req.user.brandName || req.user.name || "Freelancer"
-  const brandColor = req.user.brandColor || "#e85d3a"
+  try {
+    const brandName = req.user.brandName || req.user.name || "Freelancer"
+    const brandColor = req.user.brandColor || "#e85d3a"
 
-  const { subject, html } = deliveryEmail({
-    clientName: req.clientName,
-    projectName: req.projectName,
-    deliveryLink,
-    brandColor,
-    brandName,
-  })
-  await sendEmail({ to: req.clientEmail, subject, html, fromName: brandName, replyTo: req.user.email })
+    const { subject, html } = deliveryEmail({
+      clientName: req.clientName,
+      projectName: req.projectName,
+      deliveryLink,
+      brandColor,
+      brandName,
+    })
+    await sendEmail({ to: req.clientEmail, subject, html, fromName: brandName, replyTo: req.user.email })
+  } catch (e) {
+    console.error("[DELIVERY EMAIL] Failed to send to client:", e)
+  }
 
   revalidatePath(`/requests/${requestId}`)
 }
