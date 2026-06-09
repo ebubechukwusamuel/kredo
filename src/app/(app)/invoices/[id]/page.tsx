@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { Button } from "@/components/ui/button"
 import { InvoiceActions } from "@/components/forms/invoice-actions"
+import { ConfirmPaymentButton } from "@/components/forms/confirm-payment-button"
 import { ArrowLeft } from "lucide-react"
 import { PrintPdfButton } from "@/components/print-pdf-button"
 import QRCode from "qrcode"
@@ -223,19 +224,35 @@ export default async function InvoiceDetailPage(
                 key={payment.id}
                 className="flex items-center justify-between px-4 py-3"
               >
-                <div>
-                  <p className="text-sm">
-                    {payment.date.toLocaleDateString()}
-                  </p>
-                  {payment.reference && (
-                    <p className="text-xs text-muted-foreground">
-                      Ref: {payment.reference}
+                <div className="flex items-center gap-3">
+                  <div>
+                    <p className="text-sm">
+                      {payment.date.toLocaleDateString()}
                     </p>
+                    {payment.reference && (
+                      <p className="text-xs text-muted-foreground">
+                        Ref: {payment.reference}
+                      </p>
+                    )}
+                  </div>
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    payment.status === "CONFIRMED"
+                      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                      : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                  }`}>
+                    {payment.status === "CONFIRMED" ? "Confirmed" : "Pending"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <p className={`text-sm font-medium ${
+                    payment.status === "CONFIRMED" ? "text-green-600" : "text-amber-600"
+                  }`}>
+                    +{invoice.currency} {payment.amount.toFixed(2)}
+                  </p>
+                  {payment.status === "PENDING" && (
+                    <ConfirmPaymentButton paymentId={payment.id} />
                   )}
                 </div>
-                <p className="text-sm font-medium text-green-600">
-                  +{invoice.currency} {payment.amount.toFixed(2)}
-                </p>
               </div>
             ))}
           </div>

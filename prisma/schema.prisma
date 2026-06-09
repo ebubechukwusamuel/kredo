@@ -278,18 +278,25 @@ model Expense {
 }
 
 model Payment {
-  id        String   @id @default(cuid())
-  invoiceId String
-  amount    Float
-  method    String?
-  reference String?
-  notes     String?
-  date      DateTime @default(now())
-  createdAt DateTime @default(now())
+  id          String        @id @default(cuid())
+  invoiceId   String
+  amount      Float
+  method      String?
+  reference   String?
+  notes       String?
+  date        DateTime      @default(now())
+  status      PaymentStatus @default(PENDING)
+  confirmedAt DateTime?
+  createdAt   DateTime      @default(now())
 
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
 }
 
 model ProjectRequest {

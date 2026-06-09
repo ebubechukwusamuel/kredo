@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { CheckCircle, Copy, Printer } from "lucide-react"
+import { Clock, Copy, Printer } from "lucide-react"
 
 const DEFAULT_TERMS = `1. Payment: 50% deposit is required to begin work. The remaining 50% is due upon delivery.
 2. Timeline: Project delivery timeline begins after deposit confirmation.
@@ -102,14 +102,15 @@ export function ClientPaymentPage({
             className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full"
             style={{ backgroundColor: color + "20" }}
           >
-            <CheckCircle className="h-8 w-8" style={{ color }} />
+            <Clock className="h-8 w-8" style={{ color }} />
           </div>
           <h1 className="font-heading text-2xl font-bold tracking-tight text-white">
-            Deposit confirmed!
+            Payment notification sent
           </h1>
           <p className="mt-3 text-white/50">
-            Your deposit has been confirmed. Your project is now in progress. We'll notify
-            you when your project is ready.
+            We&apos;ve notified the freelancer about your deposit. They&apos;ll verify
+            and confirm it once it reflects in their bank account. You&apos;ll receive
+            a receipt email when confirmed.
           </p>
         </div>
       </div>

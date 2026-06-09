@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
-import { sendEmail, invoiceEmail } from "@/lib/email"
+import { sendEmail, invoiceEmail, receiptEmail } from "@/lib/email"
 
 function generateInvoiceNumber() {
   const year = new Date().getFullYear()
@@ -211,6 +211,90 @@ export async function createInvoiceFromRequest({
   }
 
   redirect(`/invoices/new?clientId=${client.id}&requestId=${requestId}`)
+}
+
+export async function confirmPayment(paymentId: string) {
+  const session = await auth()
+  if (!session?.user) throw new Error("Not authenticated")
+
+  const payment = await prisma.payment.findUnique({
+    where: { id: paymentId },
+    include: {
+      invoice: {
+        include: {
+          client: { select: { name: true, email: true } },
+          user: { select: { brandName: true, name: true, brandColor: true, email: true } },
+        },
+      },
+    },
+  })
+  if (!payment) throw new Error("Payment not found")
+  if (payment.status !== "PENDING") throw new Error("Payment already confirmed")
+
+  const invoice = payment.invoice
+  const isFullPayment = payment.amount >= invoice.total
+
+  await prisma.payment.update({
+    where: { id: paymentId },
+    data: { status: "CONFIRMED", confirmedAt: new Date() },
+  })
+
+  await prisma.invoice.update({
+    where: { id: invoice.id },
+    data: {
+      depositPaid: true,
+      depositPaidAt: new Date(),
+      status: isFullPayment ? "PAID" : "PARTIAL",
+      paidAt: isFullPayment ? new Date() : undefined,
+    },
+  })
+
+  const req = await prisma.projectRequest.findFirst({
+    where: { invoiceId: invoice.id },
+  })
+
+  if (req) {
+    await prisma.projectRequest.update({
+      where: { id: req.id },
+      data: { depositPaid: true, status: "DEPOSIT_PAID" },
+    })
+  }
+
+  // Send receipt email to client
+  if (invoice.client?.email) {
+    const brandName = invoice.user.brandName || invoice.user.name || "Freelancer"
+    const brandColor = invoice.user.brandColor || "#e85d3a"
+    const balanceRemaining = invoice.total - payment.amount
+
+    try {
+      const { subject, html } = receiptEmail({
+        clientName: invoice.client.name,
+        projectName: req?.projectName || "Project",
+        invoiceNumber: invoice.number,
+        amountPaid: `${invoice.currency} ${payment.amount.toFixed(2)}`,
+        paymentType: isFullPayment ? "full" : "deposit",
+        balanceRemaining: isFullPayment ? undefined : `${invoice.currency} ${balanceRemaining.toFixed(2)}`,
+        brandColor,
+        brandName,
+        confirmationDate: new Date().toLocaleDateString("en-US", {
+          year: "numeric", month: "long", day: "numeric",
+        }),
+      })
+      await sendEmail({
+        to: invoice.client.email,
+        subject,
+        html,
+        fromName: brandName,
+        replyTo: invoice.user.email,
+      })
+    } catch (e) {
+      console.error("[RECEIPT EMAIL] Failed to send:", e)
+    }
+  }
+
+  revalidatePath("/invoices")
+  revalidatePath(`/invoices/${invoice.id}`)
+  if (req) revalidatePath(`/requests/${req.id}`)
 }
 
 export async function deleteInvoice(id: string) {

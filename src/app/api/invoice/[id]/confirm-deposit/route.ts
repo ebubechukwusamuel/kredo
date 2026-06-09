@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
-import { sendEmail, depositConfirmedEmail, getBaseUrl } from "@/lib/email"
+import { sendEmail, paymentPendingNotificationEmail, getBaseUrl } from "@/lib/email"
 
 export async function POST(
   _req: Request,
@@ -17,59 +17,51 @@ export async function POST(
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 })
     }
 
-    await prisma.invoice.update({
-      where: { id },
+    const depositAmount = invoice.depositAmount || invoice.total * 0.5
+
+    await prisma.payment.create({
       data: {
-        depositPaid: true,
-        depositPaidAt: new Date(),
-        status: "PAID",
+        invoiceId: id,
+        amount: depositAmount,
+        method: "bank_transfer",
+        notes: "Client deposit — pending verification",
+        status: "PENDING",
       },
     })
 
+    // Notify the freelancer that a client claims payment
     const req = await prisma.projectRequest.findFirst({
       where: { invoiceId: id },
     })
 
     if (req) {
-      await prisma.projectRequest.update({
-        where: { id: req.id },
-        data: { depositPaid: true, status: "DEPOSIT_PAID" },
-      })
-    }
-
-    await prisma.payment.create({
-      data: {
-        invoiceId: id,
-        amount: invoice.depositAmount || invoice.total * 0.5,
-        method: "bank_transfer",
-        notes: "Client deposit",
-      },
-    })
-
-    if (req) {
       try {
         const brandName = invoice.user.brandName || invoice.user.name || "Freelancer"
-        const brandColor = invoice.user.brandColor || "#e85d3a"
+        const clientName = req.clientName
+        const projectName = req.projectName
 
-        const { subject, html } = depositConfirmedEmail({
-          clientName: req.clientName,
-          projectName: req.projectName,
-          brandColor,
+        const { subject, html } = paymentPendingNotificationEmail({
+          clientName,
+          projectName,
+          depositAmount: `${invoice.currency} ${depositAmount.toFixed(2)}`,
+          invoiceNumber: invoice.number,
+          invoiceLink: `${getBaseUrl()}/invoices/${id}`,
           brandName,
         })
         await sendEmail({
-          to: req.clientEmail,
+          to: invoice.user.email,
           subject,
           html,
-          fromName: brandName,
-          replyTo: invoice.user.email,
         })
       } catch (e) {
-        console.error("[DEPOSIT EMAIL] Failed to send to client:", e)
+        console.error("[PENDING PAYMENT EMAIL] Failed to send to freelancer:", e)
       }
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      success: true,
+      message: "Payment notification sent to freelancer for verification.",
+    })
   } catch {
     return NextResponse.json(
       { error: "Something went wrong" },
