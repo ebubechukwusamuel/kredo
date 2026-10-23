@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export FIGMA=1
+export FIGMA_PREVIEW=1
+export NEXT_TELEMETRY_DISABLED=1
+export DATABASE_URL="${DATABASE_URL:-postgresql://figma_preview:figma_preview@127.0.0.1:5432/figma_preview}"
+export AUTH_SECRET="${AUTH_SECRET:-figma-preview-only-local-secret}"
+export NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-figma-preview-only-local-secret}"
+export NEXTAUTH_URL="${NEXTAUTH_URL:-http://localhost:${PORT:-3000}}"
+npx prisma generate
+npm run build
+test -f .next/standalone/server.js
+mkdir -p .next/standalone/.next
+if [[ -d .next/static ]]; then cp -a .next/static .next/standalone/.next/static; fi
+if [[ -d public ]]; then cp -a public .next/standalone/public; fi
+figma make deploy-preview --build-dir .next/standalone --adapter nextjs

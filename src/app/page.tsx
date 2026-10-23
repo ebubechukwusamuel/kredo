@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import {
   ArrowRight,
@@ -17,8 +16,13 @@ import { ScrollReveal } from "@/components/scroll-reveal"
 import "./landing.css"
 
 export default async function LandingPage() {
-  const session = await auth()
-  if (session?.user) redirect("/dashboard")
+  // In the isolated Figma preview, skip auth initialization so the actual landing UI renders without production secrets.
+  // The normal app path is unchanged outside the Figma preview branch.
+  if (process.env.FIGMA_PREVIEW !== "1") {
+    const { auth } = await import("@/lib/auth")
+    const session = await auth()
+    if (session?.user) redirect("/dashboard")
+  }
 
   return (
     <div className="kredo-landing">
